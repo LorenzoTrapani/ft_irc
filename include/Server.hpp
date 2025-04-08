@@ -17,11 +17,10 @@ class Server
         std::string	_password;
 
     public:
-        Server(uint16_t port, const std::string &password);
+        Server(const std::string &port, const std::string &password);
         ~Server();
 
         void 		run();
-        static bool	isValidPort(uint16_t port);
 };
 
 #endif

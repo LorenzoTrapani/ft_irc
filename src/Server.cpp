@@ -1,24 +1,25 @@
 #include "Server.hpp"
 
-Server::Server(uint16_t port, const std::string &password) : _port(port), _password(password)
+Server::Server(const std::string &portRaw, const std::string &password)
 {
-    if (!isValidPort(port))
-    {
-        throw std::invalid_argument("Invalid port number. Must be between 1024 and 65535");
-    }
+    uint16_t port = static_cast<uint16_t>(std::atoi(portRaw.c_str()));
+	if (port < 1 || port > 65535)
+		throw std::invalid_argument("Invalid port number. Must be between 1 and 65535");
+	_port = port;
+	_password = password;
 }
 
 Server::~Server() {}
 
-bool Server::isValidPort(uint16_t port)
-{
-    // Le porte riservate sono 0-1023
-    // Le porte utente sono 1024-49151
-    // Le porte dinamiche/private sono 49152-65535
-    return port >= 1024 && port <= 65535;
-}
 
 void Server::run()
 {
     Logger::info("Server running on port " + intToStr(_port) + " with password " + _password);
+	// Crea un socket TCP
+	// socket()
+	// Bind(socket, indirizzo, lunghezza)
+	// Listen(socket, numero_max_connessioni)
+	// Accept(socket, indirizzo_remoto, lunghezza_indirizzo)
+	// read(socket, buffer, lunghezza_buffer)
+	// Close(socket)
 }

@@ -8,6 +8,13 @@ int strToInt(std::string str)
     return number;
 }
 
+std::string intToStr(int number)
+{
+    std::stringstream ss;
+    ss << number;
+    return ss.str();
+}
+
 int strToHex(const std::string &str)
 {
     int number = 0;
@@ -15,11 +22,4 @@ int strToHex(const std::string &str)
     ss << std::hex << str;
     ss >> number;
     return number;
-}
-
-std::string intToStr(int number)
-{
-    std::stringstream ss;
-    ss << number;
-    return ss.str();
 }

@@ -1,5 +1,7 @@
 #include "Server.hpp"
 
+//TCP connection: in pratica e' un socket che si connette ad un altro socket utilizzando il protocollo TCP(misto fra ip e porte)
+
 int main(int argc, char **argv)
 {
     if (argc != 3)
@@ -8,10 +10,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    uint16_t port = static_cast<uint16_t>(std::atoi(argv[1]));
     
     try {
-        Server server(port, argv[2]);
+        Server server(argv[1], argv[2]);
         server.run();
     }
     catch (const std::invalid_argument &e) {
