@@ -6,6 +6,7 @@ Server::Server(const std::string &portRaw, const std::string &password)
 	if (port < 1 || port > 65535)
 		throw std::invalid_argument("Invalid port number. Must be between 1 and 65535");
 	_port = port;
+	// TODO: Check password
 	_password = password;
 }
 
@@ -21,5 +22,4 @@ void Server::run()
 	// Listen(socket, numero_max_connessioni)
 	// Accept(socket, indirizzo_remoto, lunghezza_indirizzo)
 	// read(socket, buffer, lunghezza_buffer)
-	// Close(socket)
 }

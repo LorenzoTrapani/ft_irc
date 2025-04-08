@@ -9,7 +9,6 @@ int main(int argc, char **argv)
         Logger::error("Usage: ./ircserv <port> <password>");
         return 1;
     }
-
     
     try {
         Server server(argv[1], argv[2]);
