@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -g -I./include
 
 SRC = main.cpp \
 		./src/Server.cpp \
-		./src/Client.cpp \
+		# ./src/Client.cpp \
 		./src/commands/Invite.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/Kick.cpp \
@@ -26,7 +26,6 @@ $(NAME): $(SRC)
 	@echo "[${NAME}] Compiled successfully."
 
 clean:
-	rm -f $(NAME)
 
 fclean: clean
 	rm -f $(NAME)
