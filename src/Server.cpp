@@ -1,6 +1,5 @@
 #include "Server.hpp"
 
-
 Server::Server(const std::string &portRaw, const std::string &password)
 {
     uint16_t port = static_cast<uint16_t>(std::atoi(portRaw.c_str()));
@@ -13,7 +12,7 @@ Server::Server(const std::string &portRaw, const std::string &password)
     _socket = -1;
 	initIpAddress();
 
-	Logger::info("Server initialized on port:" + intToStr(_port) + " with password " + _password);
+	Logger::debug("Server initialized on port:" + intToStr(_port) + " with password " + _password);
 }
 
 Server::~Server() 
@@ -82,6 +81,11 @@ void Server::initSocket()
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == -1)
 		throw ServerException("Failed to create socket");
+
+    int optval = 1;
+	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))!=0) {
+		throw ServerException("Failed to set socket option");
+	}
     
     int flags = fcntl(_socket, F_GETFL, 0);
     if (flags == -1)
@@ -106,11 +110,11 @@ void Server::removeClient(int socketFd)
 
 void Server::run()
 {
-    Logger::info("Server RUNNING");
     
     initSocket();
 	bindSocket();
 	listenForConnections();
+    Logger::info("Server RUNNING");
 	handleConnections();
 }
 
@@ -122,8 +126,9 @@ void Server::bindSocket()
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(_port);
 
-    if (bind(_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
-		throw ServerException("Failed to bind socket");
+    if (bind(_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        throw ServerException("Failed to bind socket: Port " + intToStr(_port) + " is already in use");
+    }
 	Logger::info("Socket bound to port " + intToStr(_port));
 }
 

@@ -15,7 +15,11 @@ int main(int argc, char **argv)
         server.run();
     }
     catch (const std::invalid_argument &e) {
-		Logger::error("Error: " + std::string(e.what()));
+		Logger::error("Parsing error: " + std::string(e.what()));
+        return 1;
+    }
+    catch (const std::exception &e) {
+		Logger::error("Server error: " + std::string(e.what()));
         return 1;
     }
     
