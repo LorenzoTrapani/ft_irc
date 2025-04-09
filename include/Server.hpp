@@ -43,7 +43,6 @@ class Server
         void    run();
 
         // Getters
-        const std::string& getHost() const;
         uint16_t getPort() const;
         const std::string& getPassword() const;
 
