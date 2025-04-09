@@ -10,8 +10,8 @@ SRC = main.cpp \
 		./src/Server.cpp \
 		./src/Utils.cpp \
 		./src/Logger.cpp \
-		# ./src/Client.cpp \
-		./src/commands/Invite.cpp \
+		./src/Client.cpp \
+		# ./src/commands/Invite.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/Kick.cpp \
 		./src/commands/Mode.cpp \

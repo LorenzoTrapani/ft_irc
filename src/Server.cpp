@@ -70,6 +70,7 @@ void Server::initIpAddress()
         throw ServerException("Failed to convert IP to string");
     }
     
+	//TODO: Controllare se e' da modificare questo ultimo pezzo o se e' giusto cosi'
     std::string host(ipStr);
     close(tempSocketFd);
 	Logger::debug("Server IP: " + host);
@@ -89,18 +90,63 @@ void Server::initSocket()
         throw ServerException("Failed to set socket to non-blocking mode");
 }
 
+void Server::removeClient(int socketFd)
+{
+    if (!_clients.count(socketFd))
+        return;
+
+    // Find and remove the client from the vector
+    std::map<int, Client*>::iterator it = _clients.find(socketFd);
+    if (it != _clients.end()) {
+        _clients.erase(it);
+        close(socketFd);
+        Logger::info("Client disconnected");
+    }
+}
+
 void Server::run()
 {
     Logger::info("Server RUNNING");
-    /*
-    while (true)
-    {
-        acceptNewConnection();
-        // TODO: Add select() for handling multiple clients
-        // TODO: Add message handling
-    }*/
+    
+    initSocket();
+	bindSocket();
+	listenForConnections();
+	handleConnections();
 }
 
+void Server::bindSocket()
+{
+    struct sockaddr_in serverAddr;
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(_port);
+
+    if (bind(_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
+		throw ServerException("Failed to bind socket");
+	Logger::info("Socket bound to port " + intToStr(_port));
+}
+
+void Server::listenForConnections()
+{
+	if (listen(_socket, 5) < 0)
+		throw ServerException("Failed to listen for connections");
+	Logger::info("Listening for connections on port " + intToStr(_port));
+}
+
+void Server::handleConnections()
+{
+	while (420)
+	{
+		//Adesso printa ogni tot per far vedere che il server è attivo
+		//TODO: Accettare le connessioni
+		//TODO: leggere i dati dai client
+		//TODO: mandare le risposte ai client
+		//TODO: gestire le disconnessioni
+		Logger::debug("Server is running and listening on port " + intToStr(_port));
+		sleep(1); // Per non sovraccaricare i log
+	}
+}
 
 // Getters
 uint16_t Server::getPort() const { return _port; }

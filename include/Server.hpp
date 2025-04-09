@@ -9,7 +9,6 @@
 #include <stdint.h> // Per uint16_t
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <vector>
 #include <map>
 #include <unistd.h>
 #include <fcntl.h>
@@ -17,7 +16,9 @@
 #include <arpa/inet.h>  // Per inet_addr e inet_ntoa
 #include "Logger.hpp"
 #include "Utils.hpp"
+#include <algorithm>
 #include "Client.hpp"
+
 
 class Server
 {
@@ -25,15 +26,17 @@ class Server
         uint16_t	        _port;
         std::string	        _password;
         int                 _socket;
-        struct sockaddr_in  _serverAddr;
+        // struct sockaddr_in  _serverAddr;
         static const int MAX_CONNECTIONS = 10;
+        std::map<int, Client*> _clients;
 
         // Private methods
         void    initSocket();
         void    bindSocket();
         void    listenForConnections();
-        void    acceptNewConnection();
+        void    handleConnections();
         void    initIpAddress();
+        void    removeClient(int socketFd);
 
     public:
 
