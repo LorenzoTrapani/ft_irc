@@ -104,7 +104,6 @@ void Server::removeClient(int socketFd)
     if (it != _clients.end()) {
         _clients.erase(it);
         close(socketFd);
-        Logger::info("Client disconnected");
     }
 }
 
@@ -141,16 +140,153 @@ void Server::listenForConnections()
 
 void Server::handleConnections()
 {
+	fd_set readFds, writeFds;
+	int maxFd = _socket;
+
 	while (420)
 	{
-		//Adesso printa ogni tot per far vedere che il server è attivo
-		//TODO: Accettare le connessioni
-		//TODO: leggere i dati dai client
-		//TODO: mandare le risposte ai client
-		//TODO: gestire le disconnessioni
-		Logger::debug("Server is running and listening on port " + intToStr(_port));
-		sleep(1); // Per non sovraccaricare i log
+		// Prepara i set per select()
+		FD_ZERO(&readFds);
+		FD_ZERO(&writeFds);
+		
+		// Aggiungi il socket principale al set di lettura
+		FD_SET(_socket, &readFds);
+		
+		// Aggiungi tutti i socket client ai set di lettura e scrittura
+		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		{
+			int clientFd = it->first;
+			FD_SET(clientFd, &readFds);
+			
+			// Se ci sono dati da inviare al client, aggiungi al set di scrittura
+			// Per ora lo aggiungiamo sempre, successivamente verrà aggiunto solo 
+			// quando ci sono effettivamente dati da inviare
+			FD_SET(clientFd, &writeFds);
+			
+			// Aggiorna maxFd se necessario
+			if (clientFd > maxFd)
+				maxFd = clientFd;
+		}
+		
+		// Imposta timeout a NULL per bloccare indefinitamente
+		// select() ritornerà solo quando c'è attività su uno dei socket
+		struct timeval timeout;
+		timeout.tv_sec = 1;  // 1 secondo di timeout per permettere controlli periodici
+		timeout.tv_usec = 0;
+		
+		int activity = select(maxFd + 1, &readFds, &writeFds, NULL, &timeout);
+		
+		if (activity < 0)
+		{
+			// Gestisci errori di select, ma ignora EINTR (interruzione da segnale)
+			if (errno != EINTR)
+				Logger::error("select() failed: " + std::string(strerror(errno)));
+			continue;
+		}
+		
+		// Controlla se ci sono nuove connessioni sul socket principale
+		if (FD_ISSET(_socket, &readFds))
+			acceptNewConnection();
+		
+		// Controlla attività sui socket client esistenti
+		std::map<int, Client*>::iterator it = _clients.begin();
+		while (it != _clients.end())
+		{
+			int clientFd = it->first;
+			Client* client = it->second;
+			++it;
+			
+			// Se c'è attività in lettura su questo socket client
+			if (FD_ISSET(clientFd, &readFds))
+			{
+				if (!handleClientData(clientFd))
+				{
+					// Se handleClientData ritorna false, il client si è disconnesso
+					delete client;
+					client = NULL;
+					removeClient(clientFd);
+					continue;
+				}
+			}
+			
+			// Se c'è possibilità di scrittura su questo socket client
+			if (client && FD_ISSET(clientFd, &writeFds))
+			{
+				// TODO: Implementare l'invio di dati in attesa per questo client
+			}
+		}
 	}
+}
+
+void Server::acceptNewConnection()
+{
+	struct sockaddr_in clientAddr;
+	socklen_t clientAddrLen = sizeof(clientAddr);
+	
+	int clientFd = accept(_socket, (struct sockaddr*)&clientAddr, &clientAddrLen);
+	
+	if (clientFd < 0)
+	{
+		if (errno != EAGAIN && errno != EWOULDBLOCK)
+			Logger::error("Failed to accept connection: " + std::string(strerror(errno)));
+		return;
+	}
+	
+	// Imposta il socket client in modalità non bloccante
+	int flags = fcntl(clientFd, F_GETFL, 0);
+	if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		Logger::error("Failed to set client socket to non-blocking mode");
+		close(clientFd);
+		return;
+	}
+	
+	// Crea un nuovo client
+	Client* newClient = new Client();
+	newClient->setSocketFd(clientFd);
+	newClient->setIpAddr(inet_ntoa(clientAddr.sin_addr));
+	
+	// Aggiungi il client alla mappa
+	_clients[clientFd] = newClient;
+	
+	Logger::info("New client connected from " + newClient->getIpAddr());
+}
+
+bool Server::handleClientData(int clientFd)
+{
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));
+	
+	int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+	
+	if (bytesRead <= 0)
+	{
+		if (bytesRead == 0)
+		{
+			// Connessione chiusa dal client
+			Logger::info("Client disconnected gracefully");
+		}
+		else if (errno != EAGAIN && errno != EWOULDBLOCK)
+		{
+			// Errore reale
+			Logger::error("Error reading from client: " + std::string(strerror(errno)));
+		}
+		return false;
+	}
+	
+	// Termina il buffer con un null byte per sicurezza
+	buffer[bytesRead] = '\0';
+	
+	// Logga il messaggio ricevuto
+	Logger::debug("Received data from client: " + std::string(buffer));
+	
+	// Qui verrebbe implementato il parsing e la gestione del comando
+	// Per ora, echoing semplice per testing
+    // TODO: gestione mssaggi incompleti senza /n --> echo -n "TEST WITHOUT NEWLINE" | nc localhost 6667
+	std::string response = "Server received: " + std::string(buffer) + "\r\n";
+	send(clientFd, response.c_str(), response.length(), 0);
+	
+	return true;
 }
 
 // Getters

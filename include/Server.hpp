@@ -37,6 +37,8 @@ class Server
         void    handleConnections();
         void    initIpAddress();
         void    removeClient(int socketFd);
+        void    acceptNewConnection();
+        bool    handleClientData(int clientFd);
 
     public:
 
