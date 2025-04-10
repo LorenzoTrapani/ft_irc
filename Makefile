@@ -35,5 +35,12 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 
+PORT = 6667
+PASSW = daje
+
+valgrind: all
+	@valgrind --leak-check=full --show-leak-kinds=all --quiet ./$(NAME) "$(PORT)" "$(PASSW)"
+
+
 re: fclean all
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re valgrind
