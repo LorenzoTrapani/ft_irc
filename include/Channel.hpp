@@ -7,6 +7,7 @@
 #include <set>
 #include "Client.hpp"
 #include "Logger.hpp"
+#include "Utils.hpp"
 
 class Channel
 {
@@ -47,12 +48,12 @@ public:
     void                setUserLimit(unsigned int limit, int clientFd);
     
     // Gestione utenti
-    /*bool                addClient(Client* client, const std::string& password = "");
-    bool                removeClient(int clientFd, const std::string& reason = "");
-    void                promoteToOperator(int clientFd, int byClientFd);
-    void                demoteOperator(int clientFd, int byClientFd);
-    void                invite(int clientFd, int byClientFd);
-    
+    bool                addClientToChannel(Client* client, const std::string &password);
+    bool                removeClientFromChannel(int clientTargetFd, int clientOperatorFd);
+    void                promoteToOperator(int clientTargetFd, int clientOperatorFd);
+    void                demoteOperator(int clientTargetFd, int clientOperatorFd);
+    void                invite(int clientTargetFd, int clientOperatorFd);
+    /*
     // Messaggi
     void                sendMessage(const std::string& message, Client* sender);
     void                sendServerMessage(const std::string& message);

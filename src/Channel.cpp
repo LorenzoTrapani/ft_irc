@@ -6,7 +6,7 @@ Channel::Channel(const std::string& name, Client* creator)
       _password(""), 
       _inviteOnly(false), 
       _topicRestricted(true), 
-      _userLimit(0)
+      _userLimit(20)
 {
     // Aggiungi il creatore come membro e operatore
     if (!creator)
@@ -100,4 +100,64 @@ void Channel::setUserLimit(unsigned int limit, int clientFd)
         Logger::info("User limit for channel " + _name + " set to " + intToStr(_userLimit));
     else
         Logger::info("User limit removed from channel " + _name);
+}
+
+bool Channel::addClientToChannel(Client* client, const std::string &password)
+{
+    if (isInviteOnly() && !isInvited(client->getSocketFd())) {
+        Logger::warning("Client " + client->getIpAddr() + " tried to join invite-only channel " + _name + " but is not invited");
+        return false;
+    }
+    if (hasPassword() && password != _password) {
+        Logger::warning("Client " + client->getIpAddr() + " tried to join password-protected channel " + _name + " with incorrect password");
+        return false;
+    }
+    if (getUserCount() >= _userLimit) {
+        Logger::warning("Channel " + _name + " is full (limit: " + intToStr(_userLimit) + ")");
+        return false;
+    }
+    _members.insert(client->getSocketFd());
+    Logger::info("Client " + client->getIpAddr() + " added to channel " + _name);
+    return true;
+}
+
+bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd)
+{
+    if (!isOperator(clientOperatorFd)) {
+        Logger::warning("Non-operator tried to remove client from channel " + _name);
+        return false;
+    }
+    _members.erase(clientTargetFd);
+    Logger::info("Client " + intToStr(clientTargetFd) + " removed from channel " + _name);
+    return true;
+}
+
+void Channel::promoteToOperator(int clientTargetFd, int clientOperatorFd)
+{
+    if (!isOperator(clientOperatorFd)) {
+        Logger::warning("Non-operator tried to promote client to operator in channel " + _name);
+        return;
+    }
+    _operators.insert(clientTargetFd);
+    Logger::info("Client " + intToStr(clientTargetFd) + " promoted to operator in channel " + _name);
+}
+
+void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd) 
+{
+    if (!isOperator(clientOperatorFd)) {
+        Logger::warning("Non-operator tried to demote client from operator in channel " + _name);
+        return;
+    }
+    _operators.erase(clientTargetFd);
+    Logger::info("Client " + intToStr(clientTargetFd) + " demoted from operator in channel " + _name);
+}
+
+void Channel::invite(int clientTargetFd, int clientOperatorFd)
+{
+    if (!isOperator(clientOperatorFd)) {
+        Logger::warning("Non-operator tried to invite client to channel " + _name);
+        return;
+    }
+    _invited.insert(clientTargetFd);
+    Logger::info("Client " + intToStr(clientTargetFd) + " invited to channel " + _name);
 }
