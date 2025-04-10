@@ -280,11 +280,20 @@ bool Server::handleClientData(int clientFd)
 	// Logga il messaggio ricevuto
 	Logger::debug("Received data from client: " + std::string(buffer));
 	
-	// Qui verrebbe implementato il parsing e la gestione del comando
-	// Per ora, echoing semplice per testing
-    // TODO: gestione mssaggi incompleti senza /n --> echo -n "TEST WITHOUT NEWLINE" | nc localhost 6667
-	std::string response = "Server received: " + std::string(buffer) + "\r\n";
-	send(clientFd, response.c_str(), response.length(), 0);
+	// Ottieni il client corrente
+	Client* client = _clients[clientFd];
+	
+	// Aggiungi i dati ricevuti al buffer del client
+	client->appendToBuffer(std::string(buffer, bytesRead));
+	
+	// Processa i comandi completi nel buffer
+	std::vector<std::string> commands = client->extractCommands();
+	
+	for (size_t i = 0; i < commands.size(); i++) {
+		// Qui verrebbe implementato il parsing e la gestione del comando
+		std::string response = "Server received: " + commands[i] + "\r\n";
+		send(clientFd, response.c_str(), response.length(), 0);
+	}
 	
 	return true;
 }

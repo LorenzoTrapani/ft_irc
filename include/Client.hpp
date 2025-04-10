@@ -2,23 +2,38 @@
 #define CLIENT_HPP
 
 #include <string>
+#include <vector>
 
-class Client
-{
-    private:
-	int 		_socketFd;
+class Client {
+private:
+    int _socketFd;
     std::string _ipAddr;
+    std::string _nickname;
+    std::string _username;
+    std::string _inputBuffer; // Buffer per i dati in ingresso
+    bool _authenticated;
 
-    public:
-	Client();
-	~Client();
+public:
+    Client();
+    ~Client();
 
-	void setSocketFd(int socketFd);
-	void setIpAddr(std::string ipAddr);
+    // Getters
+    int getSocketFd() const;
+    const std::string& getIpAddr() const;
+    const std::string& getNickname() const;
+    const std::string& getUsername() const;
+    bool isAuthenticated() const;
 
-	int getSocketFd();
-	std::string getIpAddr();
+    // Setters
+    void setSocketFd(int socketFd);
+    void setIpAddr(const std::string& ipAddr);
+    void setNickname(const std::string& nickname);
+    void setUsername(const std::string& username);
+    void setAuthenticated(bool authenticated);
+
+    // Buffer management
+    void appendToBuffer(const std::string& data);
+    std::vector<std::string> extractCommands();
 };
 
 #endif
-
