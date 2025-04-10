@@ -6,9 +6,10 @@ Channel::Channel(const std::string& name, Client* creator)
       _password(""), 
       _inviteOnly(false), 
       _topicRestricted(true), 
-      _userLimit(20)
+      _userLimit(0)
 {
-    // Aggiungi il creatore come membro e operatore
+     if (name.empty() || name[0] != '#')
+        throw ChannelError("Channel name must start with #");
     if (!creator)
         throw ChannelError("Cannot create a channel without an initial user");
     _operators.insert(creator->getSocketFd());
@@ -29,6 +30,8 @@ const std::string& Channel::getName() const { return _name; }
 const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
+const std::set<int>& Channel::getMembers() const {return _members;}
+
 bool Channel::isInviteOnly() const { return _inviteOnly; }
 bool Channel::isTopicRestricted() const { return _topicRestricted; }
 bool Channel::hasPassword() const { return !_password.empty(); }
@@ -94,6 +97,12 @@ void Channel::setUserLimit(unsigned int limit, int clientFd)
         Logger::warning("Non-operator tried to change user limit in channel " + _name);
         return;
     }
+
+    if (limit < getUserCount())
+    {
+        Logger::warning("User limit cannot be set lower than the current number of users in channel " + _name);
+        return;
+    }
     
     _userLimit = limit;
     if (_userLimit > 0)
@@ -112,7 +121,7 @@ bool Channel::addClientToChannel(Client* client, const std::string &password)
         Logger::warning("Client " + client->getIpAddr() + " tried to join password-protected channel " + _name + " with incorrect password");
         return false;
     }
-    if (getUserCount() >= _userLimit) {
+    if (_userLimit > 0 && getUserCount() >= _userLimit) {
         Logger::warning("Channel " + _name + " is full (limit: " + intToStr(_userLimit) + ")");
         return false;
     }
@@ -160,4 +169,33 @@ void Channel::invite(int clientTargetFd, int clientOperatorFd)
     }
     _invited.insert(clientTargetFd);
     Logger::info("Client " + intToStr(clientTargetFd) + " invited to channel " + _name);
+}
+
+void Channel::sendMessage(const std::string& message, Client* sender)
+{
+    // Invio del messaggio da parte di un altro CLIENT a tutti i client nel canale tranne il mittente
+    for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it) {
+        int clientFd = *it;
+        if (clientFd != sender->getSocketFd()) {
+            send(clientFd, message.c_str(), message.size(), 0);
+        }
+    }
+}
+
+void Channel::sendServerMessage(const std::string& message)
+{
+    // Invio del messaggio da parte del SERVER a tutti i client nel canale
+    for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it) {
+        int clientFd = *it;
+        send(clientFd, message.c_str(), message.size(), 0);
+    }
+}
+
+std::string Channel::getModes() const
+{
+    std::string modes;
+    if (_inviteOnly) modes += "i";
+    if (_topicRestricted) modes += "t";
+    if (_userLimit > 0) modes += "l";
+    return modes;
 }

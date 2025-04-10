@@ -1,7 +1,5 @@
 #include "Server.hpp"
 
-//TCP connection: in pratica e' un socket che si connette ad un altro socket utilizzando il protocollo TCP(misto fra ip e porte)
-
 int main(int argc, char **argv)
 {
     if (argc != 3)
