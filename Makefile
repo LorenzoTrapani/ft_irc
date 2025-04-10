@@ -11,6 +11,7 @@ SRC = main.cpp \
 		./src/Utils.cpp \
 		./src/Logger.cpp \
 		./src/Client.cpp \
+		./src/Channel.cpp \
 		# ./src/commands/Invite.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/Kick.cpp \
