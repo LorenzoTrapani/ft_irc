@@ -25,7 +25,6 @@ void User::execute(Client* client, const std::vector<std::string>& params) {
     // Verifica se il client ha completato l'autenticazione (ha sia nickname che username e password corretta)
     if (client->isAuthenticated() && !client->getNickname().empty()) {
         ResponseMessage::sendWelcomeMsg(client);
-		Logger::debug("User authenticated on server port: " + intToStr(_server->getPort()));
     }
 }
 

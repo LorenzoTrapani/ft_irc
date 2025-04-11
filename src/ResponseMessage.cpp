@@ -23,7 +23,7 @@ void ResponseMessage::sendWelcomeMsg(Client* client) {
         sendNumeric(client, RPL_YOURHOST, ":Your host is " + formatPrefix().substr(1) + ", running version " + _serverVersion);
         sendNumeric(client, RPL_CREATED, ":This server, named " + _serverName + " was created " + _serverCreationDate);
         
-        Logger::info("Client " + client->getIpAddr() + " (" + client->getNickname() + ") totally authenticated");
+        Logger::info("Client " + client->getIpAddr() + " (" + client->getNickname() + ") successfully authenticated");
     }
 }
 
@@ -68,7 +68,9 @@ void ResponseMessage::sendNumeric(Client* client, ResponseCode code, const std::
     std::string formattedMessage = formatMessage(client, code, message);
     send(client->getSocketFd(), formattedMessage.c_str(), formattedMessage.length(), 0);
     
-    Logger::debug(">> " + formattedMessage);
+    if (code != RPL_WELCOME && code != RPL_YOURHOST && code != RPL_CREATED) {
+        Logger::debug(">> " + formattedMessage);
+    }
 }
 
 void ResponseMessage::sendCustom(Client* client, const std::string& message) {
