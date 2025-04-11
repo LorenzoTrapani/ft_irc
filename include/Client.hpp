@@ -6,12 +6,12 @@
 
 class Client {
 private:
-    int _socketFd;
+    int 		_socketFd;
     std::string _ipAddr;
     std::string _nickname;
     std::string _username;
     std::string _inputBuffer; // Buffer per i dati in ingresso
-    bool _authenticated;
+    bool		_authenticated;
 
 public:
     Client();
