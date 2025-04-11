@@ -19,6 +19,7 @@
 #include <algorithm>
 #include "Client.hpp"
 
+class CommandHandler;
 
 class Server
 {
@@ -29,6 +30,9 @@ class Server
         // struct sockaddr_in  _serverAddr;
         static const int MAX_CONNECTIONS = 10;
         std::map<int, Client*> _clients;
+        CommandHandler*     _commandHandler;
+        time_t              _lastPingTime;
+        static const int    PING_INTERVAL = 60; // secondi
 
         // Private methods
         void    initSocket();
@@ -39,9 +43,11 @@ class Server
         void    removeClient(int socketFd);
         void    acceptNewConnection();
         bool    handleClientData(int clientFd);
+        void    initCommands();
+        void    checkPingClients();
+        std::string generatePingToken() const;
 
     public:
-
         Server(const std::string &portRaw, const std::string &password);
         ~Server();
 
@@ -50,7 +56,7 @@ class Server
         // Getters
         uint16_t getPort() const;
         const std::string& getPassword() const;
-
+        const std::map<int, Client*>& getClients() const;
 
         // Exceptions
         class ServerException : public std::runtime_error {

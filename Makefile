@@ -11,15 +11,18 @@ SRC = main.cpp \
 		./src/Utils.cpp \
 		./src/Logger.cpp \
 		./src/Client.cpp \
+		./src/commands/Pass.cpp \
+		./src/commands/Pong.cpp \
+		./src/commands/Nick.cpp \
+		./src/CommandHandler.cpp \
+		./src/ResponseMessage.cpp \
+		./src/commands/User.cpp \
+		./src/commands/Ping.cpp \
 		# ./src/commands/Invite.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/Kick.cpp \
 		./src/commands/Mode.cpp \
-		./src/commands/Nick.cpp \
-		./src/commands/Ping.cpp \
-		./src/commands/Privmsg.cpp \
 		./src/commands/Topic.cpp \
-		./src/commands/User.cpp \
 		./src/commands/Who.cpp \
 		
 

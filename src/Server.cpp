@@ -1,4 +1,13 @@
 #include "Server.hpp"
+#include "CommandHandler.hpp"
+#include "commands/Pass.hpp"
+#include "commands/Nick.hpp"
+#include "commands/User.hpp"
+#include "commands/Ping.hpp"
+#include "commands/Pong.hpp"
+#include "ResponseMessage.hpp"
+#include <ctime>
+#include <sstream>
 
 Server::Server(const std::string &portRaw, const std::string &password)
 {
@@ -10,6 +19,8 @@ Server::Server(const std::string &portRaw, const std::string &password)
 		throw InvalidArgument("Password cannot be empty");
 	_password = password;
     _socket = -1;
+    _commandHandler = NULL;
+    _lastPingTime = time(NULL);
 	initIpAddress();
 
 	Logger::debug("Server initialized on port:" + intToStr(_port) + " with password " + _password);
@@ -19,6 +30,14 @@ Server::~Server()
 {
     if (_socket != -1)
         close(_socket);
+        
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        delete it->second;
+    }
+    _clients.clear();
+    
+    if (_commandHandler)
+        delete _commandHandler;
 }
 
 
@@ -73,7 +92,7 @@ void Server::initIpAddress()
     std::string host(ipStr);
     close(tempSocketFd);
 	Logger::debug("Server IP: " + host);
-    //ResponseMsg::setHostname(result);
+    ResponseMessage::setHostname(host);
 }
 
 void Server::initSocket()
@@ -102,17 +121,39 @@ void Server::removeClient(int socketFd)
     // Find and remove the client from the vector
     std::map<int, Client*>::iterator it = _clients.find(socketFd);
     if (it != _clients.end()) {
+        Logger::info("Client " + it->second->getIpAddr() + 
+                    (it->second->getNickname().empty() ? "" : " (" + it->second->getNickname() + ")") + 
+                    " disconnected");
+        
+        Client* clientToDelete = it->second;
+        
         _clients.erase(it);
         close(socketFd);
+        
+        delete clientToDelete;
     }
+}
+
+void Server::initCommands()
+{
+    _commandHandler = new CommandHandler(this);
+    
+    _commandHandler->registerCommand(new Pass(this));
+    _commandHandler->registerCommand(new Nick(this));
+    _commandHandler->registerCommand(new User(this));
+    _commandHandler->registerCommand(new Ping(this));
+    _commandHandler->registerCommand(new Pong(this));
+    
+    // Qui registreremo anche tutti gli altri comandi IRC
+
 }
 
 void Server::run()
 {
-    
     initSocket();
 	bindSocket();
 	listenForConnections();
+    initCommands();
     Logger::info("Server RUNNING");
 	handleConnections();
 }
@@ -136,6 +177,37 @@ void Server::listenForConnections()
 	if (listen(_socket, 5) < 0)
 		throw ServerException("Failed to listen for connections");
 	Logger::info("Listening for connections on port " + intToStr(_port));
+}
+
+std::string Server::generatePingToken() const
+{
+    // Genera un token semplice basato sul timestamp corrente
+    std::stringstream ss;
+    ss << time(NULL);
+    return ss.str();
+}
+
+void Server::checkPingClients()
+{
+    time_t currentTime = time(NULL);
+    
+    // Invia PING ogni PING_INTERVAL secondi
+    if (currentTime - _lastPingTime >= PING_INTERVAL) {
+        _lastPingTime = currentTime;
+        
+        std::string token = generatePingToken();
+        
+        for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+            Client* client = it->second;
+            
+            // Invia PING solo ai client autenticati
+            if (client->isAuthenticated() && !client->getNickname().empty() && !client->getUsername().empty()) {
+                ResponseMessage::sendPing(client, token);
+            }
+        }
+        
+        Logger::debug("Sent PING to all authenticated clients");
+    }
 }
 
 void Server::handleConnections()
@@ -202,8 +274,6 @@ void Server::handleConnections()
 				if (!handleClientData(clientFd))
 				{
 					// Se handleClientData ritorna false, il client si è disconnesso
-					delete client;
-					client = NULL;
 					removeClient(clientFd);
 					continue;
 				}
@@ -212,9 +282,13 @@ void Server::handleConnections()
 			// Se c'è possibilità di scrittura su questo socket client
 			if (client && FD_ISSET(clientFd, &writeFds))
 			{
-				// TODO: Implementare l'invio di dati in attesa per questo client
+				// Qui gestiremo l'invio di dati in attesa per questo client
+				// Per ora non è implementato
 			}
 		}
+        
+        // Controlla se è ora di inviare PING ai client
+        checkPingClients();
 	}
 }
 
@@ -290,9 +364,9 @@ bool Server::handleClientData(int clientFd)
 	std::vector<std::string> commands = client->extractCommands();
 	
 	for (size_t i = 0; i < commands.size(); i++) {
-		// Qui verrebbe implementato il parsing e la gestione del comando
-		std::string response = "Server received: " + commands[i] + "\r\n";
-		send(clientFd, response.c_str(), response.length(), 0);
+		if (_commandHandler) {
+            _commandHandler->executeCommand(client, commands[i]);
+        }
 	}
 	
 	return true;
@@ -301,3 +375,4 @@ bool Server::handleClientData(int clientFd)
 // Getters
 uint16_t Server::getPort() const { return _port; }
 const std::string& Server::getPassword() const { return _password; }
+const std::map<int, Client*>& Server::getClients() const { return _clients; }
