@@ -20,7 +20,6 @@ Server::Server(const std::string &portRaw, const std::string &password)
 	_password = password;
     _socket = -1;
     _commandHandler = NULL;
-    _lastPingTime = time(NULL);
 	initIpAddress();
 
 	Logger::debug("Server initialized on port:" + intToStr(_port) + " with password " + _password);
@@ -187,28 +186,28 @@ std::string Server::generatePingToken() const
     return ss.str();
 }
 
-void Server::checkPingClients()
-{
-    time_t currentTime = time(NULL);
+// void Server::checkPingClients()
+// {
+//     time_t currentTime = time(NULL);
     
-    // Invia PING ogni PING_INTERVAL secondi
-    if (currentTime - _lastPingTime >= PING_INTERVAL) {
-        _lastPingTime = currentTime;
+//     // Invia PING ogni PING_INTERVAL secondi
+//     if (currentTime - _lastPingTime >= PING_INTERVAL) {
+//         _lastPingTime = currentTime;
         
-        std::string token = generatePingToken();
+//         std::string token = generatePingToken();
         
-        for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-            Client* client = it->second;
+//         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+//             Client* client = it->second;
             
-            // Invia PING solo ai client autenticati
-            if (client->isAuthenticated() && !client->getNickname().empty() && !client->getUsername().empty()) {
-                ResponseMessage::sendPing(client, token);
-            }
-        }
+//             // Invia PING solo ai client autenticati
+//             if (client->isAuthenticated() && !client->getNickname().empty() && !client->getUsername().empty()) {
+//                 ResponseMessage::sendPing(client, token);
+//             }
+//         }
         
-        Logger::debug("Sent PING to all authenticated clients");
-    }
-}
+//         Logger::debug("Sent PING to all authenticated clients");
+//     }
+// }
 
 void Server::handleConnections()
 {
@@ -286,9 +285,8 @@ void Server::handleConnections()
 				// Per ora non è implementato
 			}
 		}
-        
-        // Controlla se è ora di inviare PING ai client
-        checkPingClients();
+
+        // checkPingClients();
 	}
 }
 

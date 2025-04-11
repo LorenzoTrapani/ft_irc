@@ -22,7 +22,6 @@ void ResponseMessage::sendWelcomeMsg(Client* client) {
         sendNumeric(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + userhost);
         sendNumeric(client, RPL_YOURHOST, ":Your host is " + formatPrefix().substr(1) + ", running version " + _serverVersion);
         sendNumeric(client, RPL_CREATED, ":This server, named " + _serverName + " was created " + _serverCreationDate);
-        sendNumeric(client, RPL_MYINFO, formatPrefix().substr(1) + " " + _serverVersion + " o o");
         
         Logger::info("Client " + client->getIpAddr() + " (" + client->getNickname() + ") totally authenticated");
     }
@@ -89,7 +88,7 @@ void ResponseMessage::sendError(Client* client, ResponseCode code, const std::st
 void ResponseMessage::sendPing(Client* client, const std::string& token) {
     if (!client)
         return;
-        
+
     std::string pingMessage = "PING :" + token + "\r\n";
     send(client->getSocketFd(), pingMessage.c_str(), pingMessage.length(), 0);
     
