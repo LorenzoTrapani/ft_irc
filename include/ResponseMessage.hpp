@@ -30,6 +30,7 @@ enum ResponseCode {
     ERR_PASSWDMISMATCH = 464,        // :Password incorrect
     ERR_UNKNOWNCOMMAND = 421,        // <command> :Unknown command
     ERR_NOPRIVILEGES = 481,          // :Permission Denied- You're not an IRC operator
+    ERR_NOTREGISTERED = 451,         // :You have not registered
 
     // Risposte PING/PONG
     RPL_PONG = 0                     // PONG è un comando speciale, non un codice numerico

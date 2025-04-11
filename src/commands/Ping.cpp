@@ -28,8 +28,12 @@ void Ping::execute(Client* client, const std::vector<std::string>& params) {
     Logger::debug("Received PING from " + client->getNickname() + ", replied with PONG");
 }
 
-bool Ping::hasPermission(Client* /* client */) {
-    // Chiunque può inviare un PING
+bool Ping::hasPermission(Client* client) {
+    // Verifica che il client sia autenticato
+    if (!client || !client->isAuthenticated() || client->getNickname().empty() || client->getUsername().empty()) {
+        ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
+        return false;
+    }
     return true;
 }
 

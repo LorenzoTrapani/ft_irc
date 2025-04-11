@@ -25,8 +25,12 @@ void Nick::execute(Client* client, const std::vector<std::string>& params) {
     Logger::info("Client " + client->getIpAddr() + " is now known as " + nickname);
 }
 
-bool Nick::hasPermission(Client*) {
-    // NICK può essere usato in qualsiasi momento
+bool Nick::hasPermission(Client* client) {
+    // NICK può essere usato solo dopo PASS (client autenticato)
+    if (!client->isAuthenticated()) {
+        ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
+        return false;
+    }
     return true;
 }
 

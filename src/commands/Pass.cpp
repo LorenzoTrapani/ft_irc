@@ -8,11 +8,6 @@ Pass::Pass(Server* server) : _server(server) {}
 Pass::~Pass() {}
 
 void Pass::execute(Client* client, const std::vector<std::string>& params) {
-    if (client->isAuthenticated()) {
-        ResponseMessage::sendError(client, ERR_ALREADYREGISTERED, ":You may not reregister");
-        return;
-    }
-    
     if (params.empty()) {
         ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "PASS :Not enough parameters");
         return;
@@ -31,9 +26,13 @@ void Pass::execute(Client* client, const std::vector<std::string>& params) {
     }
 }
 
-bool Pass::hasPermission(Client*) {
-    // PASS può essere usato solo prima dell'autenticazione completa
-    // ma non controlliamo qui perché lo faccio in execute
+bool Pass::hasPermission(Client* client) {
+    // PASS deve essere il primo comando di autenticazione
+    // Non può essere usato se il client è già autenticato
+    if (client->isAuthenticated()) {
+        ResponseMessage::sendError(client, ERR_ALREADYREGISTERED, ":You may not reregister");
+        return false;
+    }
     return true;
 }
 
