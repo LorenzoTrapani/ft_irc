@@ -10,6 +10,7 @@ private:
     std::string _ipAddr;
     std::string _nickname;
     std::string _username;
+    std::string _realname;
     std::string _inputBuffer; // Buffer per i dati in ingresso
     bool _authenticated;
 
@@ -22,6 +23,7 @@ public:
     const std::string& getIpAddr() const;
     const std::string& getNickname() const;
     const std::string& getUsername() const;
+    const std::string& getRealname() const;
     bool isAuthenticated() const;
 
     // Setters
@@ -30,7 +32,7 @@ public:
     void setNickname(const std::string& nickname);
     void setUsername(const std::string& username);
     void setAuthenticated(bool authenticated);
-
+    void setRealname(const std::string& realname);
     // Buffer management
     void appendToBuffer(const std::string& data);
     std::vector<std::string> extractCommands();
