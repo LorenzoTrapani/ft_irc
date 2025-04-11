@@ -1,7 +1,9 @@
 #include "../include/Channel.hpp"
+#include "../include/Server.hpp"
 
-Channel::Channel(const std::string& name, Client* creator)
-    : _name(name), 
+Channel::Channel(const std::string& name, Client* creator, Server* server)
+    : _server(server),
+      _name(name), 
       _topic(""), 
       _password(""), 
       _inviteOnly(false), 
@@ -137,6 +139,17 @@ bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd)
         return false;
     }
     _members.erase(clientTargetFd);
+	if (isOperator(clientTargetFd))
+        _operators.erase(clientTargetFd);
+	if (_members.empty()) {
+		_server->removeChannel(_name);
+		return true;
+	}
+	if (_operators.empty() && !_members.empty()) {
+		int newOperatorFd = *_members.begin();
+		_operators.insert(newOperatorFd);
+		Logger::info("Channel " + _name + " has new operator: " + intToStr(newOperatorFd));
+	}
     Logger::info("Client " + intToStr(clientTargetFd) + " removed from channel " + _name);
     return true;
 }
@@ -176,19 +189,16 @@ void Channel::sendMessage(const std::string& message, Client* sender)
     // Invio del messaggio da parte di un altro CLIENT a tutti i client nel canale tranne il mittente
     for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it) {
         int clientFd = *it;
-        if (clientFd != sender->getSocketFd()) {
-            send(clientFd, message.c_str(), message.size(), 0);
-        }
+        if (clientFd != sender->getSocketFd())
+            _server->sendMessageToClient(clientFd, message);
     }
 }
 
 void Channel::sendServerMessage(const std::string& message)
 {
     // Invio del messaggio da parte del SERVER a tutti i client nel canale
-    for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it) {
-        int clientFd = *it;
-        send(clientFd, message.c_str(), message.size(), 0);
-    }
+    for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it)
+        _server->sendMessageToClient(*it, message);
 }
 
 std::string Channel::getModes() const

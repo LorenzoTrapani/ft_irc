@@ -9,9 +9,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+class Server;
+
 class Channel
 {
 private:
+	Server*			_server;
     std::string     _name;                        // Nome del canale (deve iniziare con #)
     std::string     _topic;                       // Topic/descrizione del canale
     std::string     _password;                    // Password del canale (se protetto)
@@ -25,7 +28,7 @@ private:
     unsigned int    _userLimit;                   // Limite massimo di utenti (0 = nessun limite)
 
 public:
-    Channel(const std::string& name, Client* creator);
+    Channel(const std::string& name, Client* creator, Server* server);
     ~Channel();
 
     // Getters

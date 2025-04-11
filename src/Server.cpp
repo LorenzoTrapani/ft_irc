@@ -298,6 +298,38 @@ bool Server::handleClientData(int clientFd)
 	return true;
 }
 
+void Server::sendMessageToClient(int clientFd, const std::string& message)
+{
+	send(clientFd, message.c_str(), message.size(), 0);
+}
+
+void Server::removeChannel(const std::string& channelName)
+{
+    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
+    if (it != _channels.end()) {
+        delete it->second;
+        _channels.erase(it);
+        Logger::info("Channel " + channelName + " has been removed");
+		return;
+    }
+	Logger::error("Tried to remove non-existent channel " + channelName);
+}
+
+Channel* Server::getChannel(const std::string& channelName)
+{
+    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
+    if (it != _channels.end())
+        return it->second;
+    return NULL;
+}
+
+void Server::addChannel(const std::string& channelName, Channel* channel)
+{
+    _channels[channelName] = channel;
+    Logger::info("Channel " + channelName + " added");
+}
+
+
 // Getters
 uint16_t Server::getPort() const { return _port; }
 const std::string& Server::getPassword() const { return _password; }
