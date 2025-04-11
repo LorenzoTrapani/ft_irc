@@ -23,12 +23,12 @@
 class Server
 {
     private:
-        uint16_t	        _port;
-        std::string	        _password;
-        int                 _socket;
-        static const int MAX_CONNECTIONS = 10;
-        std::map<int, Client*> _clients;
-		std::map<std::string, Channel*> _channels;
+        uint16_t	        			_port;
+        std::string	        			_password;
+        int                 			_socket;
+        static const int 				MAX_CONNECTIONS = 10;
+        std::map<int, Client*>			_clients;
+		std::map<std::string, Channel*>	_channels;
 
         // Private methods
         void    initSocket();
@@ -45,17 +45,17 @@ class Server
         Server(const std::string &portRaw, const std::string &password);
         ~Server();
 
-        void    run();
+        void		run();
 
 		// Channel methods
-		void    sendMessageToClient(int clientFd, const std::string& message);
-		void    removeChannel(const std::string& channelName);
-		void    addChannel(const std::string& channelName, Channel* channel);
-		Channel* getChannel(const std::string& channelName);
+		void		sendMessageToClient(int clientFd, const std::string& message);
+		void		removeChannel(const std::string& channelName);
+		void		addChannel(const std::string& channelName, Channel* channel);
+		Channel*	getChannel(const std::string& channelName);
 
         // Getters
-        uint16_t getPort() const;
-        const std::string& getPassword() const;
+        uint16_t			getPort() const;
+        const std::string&	getPassword() const;
 
 
         // Exceptions
