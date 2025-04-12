@@ -20,7 +20,7 @@ void User::execute(Client* client, const std::vector<std::string>& params) {
     client->setUsername(username);
     client->setRealname(realname);
     
-    Logger::info("Client " + client->getIpAddr() + " set username to " + username);
+    Logger::info("Client " + client->getIpAddr() + " set username to " + username + " on port " + intToStr(_server->getPort()));
     
     // Verifica se il client ha completato l'autenticazione (ha sia nickname che username e password corretta)
     if (client->isAuthenticated() && !client->getNickname().empty()) {
