@@ -1,15 +1,15 @@
-#ifndef PING_HPP
-#define PING_HPP
+#ifndef PASS_HPP
+#define PASS_HPP
 
 #include "ICommand.hpp"
 
-class Ping : public ICommand {
+class Pass : public ICommand {
 private:
     Server* _server;
 
 public:
-    Ping(Server* server);
-    ~Ping();
+    Pass(Server* server);
+    ~Pass();
     
     void execute(Client* client, const std::vector<std::string>& params);
     bool hasPermission(Client* client);

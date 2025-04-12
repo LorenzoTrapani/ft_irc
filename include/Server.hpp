@@ -6,19 +6,20 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <stdint.h> // Per uint16_t
+#include <stdint.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <map>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <arpa/inet.h>  // Per inet_addr e inet_ntoa
+#include <arpa/inet.h>
 #include "Logger.hpp"
 #include "Utils.hpp"
 #include <algorithm>
 #include "Client.hpp"
 #include "Channel.hpp"
+class CommandHandler;
 
 class Server
 {
@@ -29,6 +30,7 @@ class Server
         static const int 				MAX_CONNECTIONS = 10;
         std::map<int, Client*>			_clients;
 		std::map<std::string, Channel*>	_channels;
+        CommandHandler*     _commandHandler;
 
         // Private methods
         void    initSocket();
@@ -39,9 +41,11 @@ class Server
         void    removeClient(int socketFd);
         void    acceptNewConnection();
         bool    handleClientData(int clientFd);
+        void    initCommands();
+        // void    checkPingClients();
+        std::string generatePingToken() const;
 
     public:
-
         Server(const std::string &portRaw, const std::string &password);
         ~Server();
 
@@ -56,7 +60,7 @@ class Server
         // Getters
         uint16_t			getPort() const;
         const std::string&	getPassword() const;
-
+        const std::map<int, Client*>& getClients() const;
 
         // Exceptions
         class ServerException : public std::runtime_error {
