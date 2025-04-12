@@ -35,8 +35,16 @@ Server::~Server()
     }
     _clients.clear();
     
-    if (_commandHandler)
-        delete _commandHandler;
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		delete it->second;
+	}
+	_channels.clear();
+
+	if (_commandHandler){
+		delete _commandHandler;
+	}
+
+	Logger::info("Server stopped");
 }
 
 
@@ -154,6 +162,7 @@ void Server::run()
 	listenForConnections();
     initCommands();
     Logger::info("Server RUNNING");
+	running = true;
 	handleConnections();
 }
 
@@ -216,6 +225,9 @@ void Server::handleConnections()
 
 	while (420)
 	{
+		if (!running){
+			break;
+		}
 		// Prepara i set per select()
 		FD_ZERO(&readFds);
 		FD_ZERO(&writeFds);
