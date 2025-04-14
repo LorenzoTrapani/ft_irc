@@ -32,6 +32,7 @@ const std::string& Channel::getName() const { return _name; }
 const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
+std::string Channel::getPassword() const { return _password; }
 const std::set<int>& Channel::getMembers() const {return _members;}
 
 bool Channel::isInviteOnly() const { return _inviteOnly; }
@@ -132,9 +133,9 @@ bool Channel::addClientToChannel(Client* client, const std::string &password)
     return true;
 }
 
-bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd)
+bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick)
 {
-    if (!isOperator(clientOperatorFd)) {
+    if (isKick && !isOperator(clientOperatorFd)) {
         Logger::warning("Non-operator tried to remove client from channel " + _name);
         return false;
     }

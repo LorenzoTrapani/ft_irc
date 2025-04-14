@@ -5,6 +5,7 @@
 #include "commands/User.hpp"
 #include "commands/Ping.hpp"
 #include "commands/Pong.hpp"
+#include "commands/Join.hpp"
 #include "ResponseMessage.hpp"
 #include <ctime>
 #include <sstream>
@@ -127,16 +128,21 @@ void Server::removeClient(int socketFd)
 
     // Find and remove the client from the vector
     std::map<int, Client*>::iterator it = _clients.find(socketFd);
-    if (it != _clients.end()) {
-        Logger::info("Client " + it->second->getIpAddr() + 
-                    (it->second->getNickname().empty() ? "" : " (" + it->second->getNickname() + ")") + 
-                    " disconnected");
-        
+    if (it != _clients.end()){
         Client* clientToDelete = it->second;
+
+        // Log della disconnessione
+        std::string clientInfo = clientToDelete->getIpAddr();
+        if (!clientToDelete->getNickname().empty())
+            clientInfo += " (" + clientToDelete->getNickname() + ")";
+        Logger::info("Removing client " + clientInfo);
+
+        // Prima rimuovi il client da tutti i canali
+        disconnectClientFromChannels(socketFd);
         
-        _clients.erase(it);
+        // Poi chiudi il socket e rimuovi il client
         close(socketFd);
-        
+        _clients.erase(it);
         delete clientToDelete;
     }
 }
@@ -150,6 +156,7 @@ void Server::initCommands()
     _commandHandler->registerCommand(new User(this));
     _commandHandler->registerCommand(new Ping(this));
     _commandHandler->registerCommand(new Pong(this));
+	_commandHandler->registerCommand(new Join(this));
     
     // Qui registreremo anche tutti gli altri comandi IRC
 
@@ -433,6 +440,22 @@ void Server::addChannel(const std::string& channelName, Channel* channel)
     Logger::info("Channel " + channelName + " added");
 }
 
+void Server::disconnectClientFromChannels(int socketFd)
+{
+    std::map<std::string, Channel*>::iterator it = _channels.begin();
+    while (it != _channels.end())
+    {
+        Channel* channel = it->second;
+        if (channel->isInChannel(socketFd))
+        {
+            channel->removeClientFromChannel(socketFd, socketFd, false);
+            it = _channels.begin();  // Riparti dall'inizio perché la mappa potrebbe essere stata modificata
+        }
+        else
+            ++it;
+    }
+	Logger::info("Client " + _clients[socketFd]->getNickname() + " disconnected from all channels");
+}
 
 // Getters
 uint16_t Server::getPort() const { return _port; }

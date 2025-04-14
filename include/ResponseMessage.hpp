@@ -15,6 +15,7 @@ enum ResponseCode {
     
     // Risposte dei comandi (3xx)
     RPL_ISON = 303,                  // :<nick1> <nick2> ...
+	RPL_TOPIC = 332,				// <channel> <topic>
     
     // Errori (4xx, 5xx)
     ERR_NOSUCHNICK = 401,            // <nickname> :No such nick/channel
@@ -30,6 +31,9 @@ enum ResponseCode {
     ERR_UNKNOWNCOMMAND = 421,        // <command> :Unknown command
     ERR_NOPRIVILEGES = 481,          // :Permission Denied- You're not an IRC operator
     ERR_NOTREGISTERED = 451,         // :You have not registered
+	ERR_INVITEONLYCHAN = 473,        // <channel> :Cannot join channel (+i)
+	ERR_BADCHANNELKEY = 475,         // <channel> :Cannot join channel (+k)
+	ERR_CHANNELISFULL = 471,         // <channel> :Cannot join channel (+l)
 
     // Risposte PING/PONG
     RPL_PONG = 0                     // PONG è un comando speciale, non un codice numerico

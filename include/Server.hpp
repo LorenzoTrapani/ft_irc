@@ -57,6 +57,7 @@ class Server
 		// Channel methods
 		void		sendMessageToClient(int clientFd, const std::string& message);
 		void		removeChannel(const std::string& channelName);
+		void		disconnectClientFromChannels(int clientFd);
 		void		addChannel(const std::string& channelName, Channel* channel);
 		Channel*	getChannel(const std::string& channelName);
 
