@@ -24,7 +24,6 @@ SRC = main.cpp \
 		./src/commands/Kick.cpp \
 		./src/commands/Mode.cpp \
 		./src/commands/Topic.cpp \
-		./src/commands/Who.cpp \
 		
 
 all: $(NAME)
