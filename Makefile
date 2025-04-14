@@ -13,7 +13,6 @@ SRC = main.cpp \
 		./src/Client.cpp \
 		./src/Channel.cpp \
 		./src/commands/Pass.cpp \
-		./src/commands/Pong.cpp \
 		./src/commands/Nick.cpp \
 		./src/CommandHandler.cpp \
 		./src/ResponseMessage.cpp \

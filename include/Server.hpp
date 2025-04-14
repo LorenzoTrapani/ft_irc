@@ -45,8 +45,6 @@ class Server
         void    acceptNewConnection();
         bool    handleClientData(int clientFd);
         void    initCommands();
-        // void    checkPingClients();
-        std::string generatePingToken() const;
 
     public:
         Server(const std::string &portRaw, const std::string &password);

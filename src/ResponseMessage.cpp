@@ -87,16 +87,6 @@ void ResponseMessage::sendError(Client* client, ResponseCode code, const std::st
     sendNumeric(client, code, message);
 }
 
-void ResponseMessage::sendPing(Client* client, const std::string& token) {
-    if (!client)
-        return;
-
-    std::string pingMessage = "PING :" + token + "\r\n";
-    send(client->getSocketFd(), pingMessage.c_str(), pingMessage.length(), 0);
-    
-    Logger::debug(">> " + pingMessage);
-}
-
 void ResponseMessage::sendPong(Client* client, const std::string& token) {
     if (!client)
         return;
@@ -104,5 +94,5 @@ void ResponseMessage::sendPong(Client* client, const std::string& token) {
     std::string pongMessage = "PONG :" + token + "\r\n";
     send(client->getSocketFd(), pongMessage.c_str(), pongMessage.length(), 0);
     
-    Logger::debug(">> " + pongMessage);
+    Logger::info(">> " + pongMessage);
 } 

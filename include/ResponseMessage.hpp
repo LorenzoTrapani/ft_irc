@@ -63,9 +63,6 @@ public:
     // Forma la parte iniziale di un messaggio (prefisso server)
     static std::string formatPrefix();
     
-    // Invia un PING al client
-    static void sendPing(Client* client, const std::string& token);
-    
     // Invia un PONG in risposta a un PING
     static void sendPong(Client* client, const std::string& token);
 };
