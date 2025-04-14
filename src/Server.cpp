@@ -236,6 +236,7 @@ void Server::handleConnections()
 		FD_SET(STDIN_FILENO, &readFds);
 		if (STDIN_FILENO > maxFd)
             maxFd = STDIN_FILENO;
+		
 		// Aggiungi il socket principale al set di lettura
 		FD_SET(_socket, &readFds);
 		
@@ -271,7 +272,7 @@ void Server::handleConnections()
 			continue;
 		}
 
-		// Controlla se c'è input sullo standard input (Ctrl+D)
+		// Controlla se c'è input su stdin(lato server) (Ctrl+D)
         if (FD_ISSET(STDIN_FILENO, &readFds))
         {
             char buf[1];
@@ -363,13 +364,13 @@ bool Server::handleClientData(int clientFd)
 
 	if (bytesRead <= 0)
 	{
-		if (bytesRead == 0)
+		if (bytesRead == 0) // client ctrl+C
 		{
 			// Connessione chiusa dal client
 			removeClient(clientFd);
 			Logger::info("Client disconnected gracefully");
 		}
-		if (errno != EAGAIN && errno != EWOULDBLOCK) // client ctrl+C
+		else if (errno != EAGAIN && errno != EWOULDBLOCK)
 		{
 			// Errore reale
 			removeClient(clientFd);
@@ -391,8 +392,7 @@ bool Server::handleClientData(int clientFd)
 	client->appendToBuffer(std::string(buffer, bytesRead));
 	
 	// Processa i comandi completi nel buffer
-	std::vector<std::string> commands = client->extractCommands();
-	
+	std::vector<std::string> commands = client->extractCommands();	
 	for (size_t i = 0; i < commands.size(); i++) {
 		if (_commandHandler) {
             _commandHandler->executeCommand(client, commands[i]);

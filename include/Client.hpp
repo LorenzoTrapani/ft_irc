@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <sys/socket.h>  // per shutdown()
+#include <unistd.h>
 
 class Client {
 private:
