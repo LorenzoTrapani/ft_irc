@@ -19,7 +19,10 @@
 #include <algorithm>
 #include "Client.hpp"
 #include "Channel.hpp"
+
 class CommandHandler;
+
+extern bool running;
 
 class Server
 {
@@ -30,7 +33,7 @@ class Server
         static const int 				MAX_CONNECTIONS = 10;
         std::map<int, Client*>			_clients;
 		std::map<std::string, Channel*>	_channels;
-        CommandHandler*     _commandHandler;
+        CommandHandler*     		_commandHandler;
 
         // Private methods
         void    initSocket();

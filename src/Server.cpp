@@ -35,8 +35,16 @@ Server::~Server()
     }
     _clients.clear();
     
-    if (_commandHandler)
-        delete _commandHandler;
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		delete it->second;
+	}
+	_channels.clear();
+
+	if (_commandHandler){
+		delete _commandHandler;
+	}
+
+	Logger::info("Server stopped");
 }
 
 
@@ -154,6 +162,7 @@ void Server::run()
 	listenForConnections();
     initCommands();
     Logger::info("Server RUNNING");
+	running = true;
 	handleConnections();
 }
 
@@ -216,9 +225,17 @@ void Server::handleConnections()
 
 	while (420)
 	{
+		if (!running){
+			break;
+		}
 		// Prepara i set per select()
 		FD_ZERO(&readFds);
 		FD_ZERO(&writeFds);
+
+		// Aggiungi il STDIN al set di lettura per ctrl+D
+		FD_SET(STDIN_FILENO, &readFds);
+		if (STDIN_FILENO > maxFd)
+            maxFd = STDIN_FILENO;
 		
 		// Aggiungi il socket principale al set di lettura
 		FD_SET(_socket, &readFds);
@@ -254,10 +271,24 @@ void Server::handleConnections()
 				Logger::error("select() failed: " + std::string(strerror(errno)));
 			continue;
 		}
+
+		// Controlla se c'è input su stdin(lato server) (Ctrl+D)
+        if (FD_ISSET(STDIN_FILENO, &readFds))
+        {
+            char buf[1];
+            if (read(STDIN_FILENO, buf, 1) == 0)
+            {
+                // EOF (Ctrl+D) ricevuto
+                Logger::info("Received EOF (Ctrl+D), stopping server...");
+                running = false;
+                break;
+            }
+        }
 		
 		// Controlla se ci sono nuove connessioni sul socket principale
-		if (FD_ISSET(_socket, &readFds))
+		if (FD_ISSET(_socket, &readFds)) {	
 			acceptNewConnection();
+		}
 		
 		// Controlla attività sui socket client esistenti
 		std::map<int, Client*>::iterator it = _clients.begin();
@@ -330,17 +361,19 @@ bool Server::handleClientData(int clientFd)
 	memset(buffer, 0, sizeof(buffer));
 	
 	int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-	
+
 	if (bytesRead <= 0)
 	{
-		if (bytesRead == 0)
+		if (bytesRead == 0) // client ctrl+C
 		{
 			// Connessione chiusa dal client
+			removeClient(clientFd);
 			Logger::info("Client disconnected gracefully");
 		}
 		else if (errno != EAGAIN && errno != EWOULDBLOCK)
 		{
 			// Errore reale
+			removeClient(clientFd);
 			Logger::error("Error reading from client: " + std::string(strerror(errno)));
 		}
 		return false;
@@ -359,8 +392,7 @@ bool Server::handleClientData(int clientFd)
 	client->appendToBuffer(std::string(buffer, bytesRead));
 	
 	// Processa i comandi completi nel buffer
-	std::vector<std::string> commands = client->extractCommands();
-	
+	std::vector<std::string> commands = client->extractCommands();	
 	for (size_t i = 0; i < commands.size(); i++) {
 		if (_commandHandler) {
             _commandHandler->executeCommand(client, commands[i]);
