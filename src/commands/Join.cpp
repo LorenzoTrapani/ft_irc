@@ -26,7 +26,7 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
     }
 	
 	Channel* channel = _server->getChannel(channelName);
-	// Se il canale non esistesi crea
+	// Se il canale non esiste lo creo
     if (!channel) {
         try {
             channel = new Channel(channelName, client, _server);
@@ -39,7 +39,7 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
             
             // Invia messaggio di join al client
             std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN " + channelName;
-            channel->sendServerMessage(joinMsg);
+            // channel->sendServerMessage(joinMsg);
             return;
         } catch (const Channel::ChannelError& e) {
             ResponseMessage::sendError(client, ERR_NOSUCHCHANNEL, channelName + " :" + e.what());
@@ -47,7 +47,8 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
         }
     }
 
-    if (channel->addClientToChannel(client, password)) {
+    Channel::JoinError result = channel->addClientToChannel(client, password);
+    if (result == Channel::JOIN_SUCCESS) {
         // Invia messaggio di join a tutti i membri del canale
         std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN " + channelName;
         channel->sendServerMessage(joinMsg);
@@ -57,13 +58,18 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
             ResponseMessage::sendNumeric(client, RPL_TOPIC, channelName + " :" + channel->getTopic());
         }
     } else {
-        // Gestisci i vari casi di errore
-        if (channel->isInviteOnly() && !channel->isInvited(client->getSocketFd())) {
-            ResponseMessage::sendError(client, ERR_INVITEONLYCHAN, channelName + " :Cannot join channel (+i)");
-        } else if (channel->hasPassword() && password != channel->getPassword()) {
-            ResponseMessage::sendError(client, ERR_BADCHANNELKEY, channelName + " :Cannot join channel (+k)");
-        } else if (channel->getUserLimit() > 0 && channel->getUserCount() >= channel->getUserLimit()) {
-            ResponseMessage::sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
+        switch(result) {
+            case Channel::JOIN_ERR_INVITE_ONLY:
+                ResponseMessage::sendError(client, ERR_INVITEONLYCHAN, channelName + " :Cannot join channel (+i)");
+                break;
+            case Channel::JOIN_ERR_BAD_PASSWORD:
+                ResponseMessage::sendError(client, ERR_BADCHANNELKEY, channelName + " :Cannot join channel (+k)");
+                break;
+            case Channel::JOIN_ERR_CHANNEL_FULL:
+                ResponseMessage::sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
+                break;
+			case Channel::JOIN_SUCCESS: //aggiunto per evitare warning
+				break;
         }
     }
 }

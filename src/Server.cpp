@@ -91,8 +91,7 @@ void Server::initIpAddress()
         close(tempSocketFd);
         throw ServerException("Failed to convert IP to string");
     }
-    
-	//TODO: Controllare se e' da modificare questo ultimo pezzo o se e' giusto cosi'
+	
     std::string host(ipStr);
     close(tempSocketFd);
     ResponseMessage::setHostname(host);
@@ -373,6 +372,11 @@ void Server::sendMessageToClient(int clientFd, const std::string& message)
 	send(clientFd, message.c_str(), message.size(), 0);
 }
 
+void Server::addChannel(const std::string& channelName, Channel* channel)
+{
+    _channels[channelName] = channel;
+}
+
 void Server::removeChannel(const std::string& channelName)
 {
     std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
@@ -383,19 +387,6 @@ void Server::removeChannel(const std::string& channelName)
 		return;
     }
 	Logger::error("Tried to remove non-existent channel " + channelName);
-}
-
-Channel* Server::getChannel(const std::string& channelName)
-{
-    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
-    if (it != _channels.end())
-        return it->second;
-    return NULL;
-}
-
-void Server::addChannel(const std::string& channelName, Channel* channel)
-{
-    _channels[channelName] = channel;
 }
 
 void Server::disconnectClientFromChannels(int socketFd)
@@ -428,6 +419,14 @@ void Server::disconnectClientFromChannels(int socketFd)
 uint16_t Server::getPort() const { return _port; }
 const std::string& Server::getPassword() const { return _password; }
 const std::map<int, Client*>& Server::getClients() const { return _clients; }
+
+Channel* Server::getChannel(const std::string& channelName)
+{
+    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
+    if (it != _channels.end())
+        return it->second;
+    return NULL;
+}
 
 Client* Server::getClient(int clientFd) const {
     if (clientFd < 0)

@@ -31,13 +31,19 @@ public:
     Channel(const std::string& name, Client* creator, Server* server);
     ~Channel();
 
+	enum JoinError {
+		JOIN_SUCCESS,
+		JOIN_ERR_INVITE_ONLY,
+		JOIN_ERR_BAD_PASSWORD,
+		JOIN_ERR_CHANNEL_FULL
+	};
+
     // Getters
     const std::string&      getName() const;
     const std::string&      getTopic() const;
     unsigned int            getUserCount() const;
     unsigned int            getUserLimit() const;
     std::string             getModes() const;
-    const std::set<int>&    getMembers() const;
 	std::string             getPassword() const;
     
     // Setters
@@ -54,9 +60,9 @@ public:
     bool                    isOperator(int clientFd) const;
     bool                    isInChannel(int clientFd) const;
     bool                    isInvited(int clientFd) const;
-
+    bool                    isValidChannelName(const std::string& name);
     // Gestione utenti
-    bool                    addClientToChannel(Client* client, const std::string &password);
+    JoinError         addClientToChannel(Client* client, const std::string &password);
     bool                    removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick);
     void                    promoteToOperator(int clientTargetFd, int clientOperatorFd);
     void                    demoteOperator(int clientTargetFd, int clientOperatorFd);

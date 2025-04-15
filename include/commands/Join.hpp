@@ -3,6 +3,7 @@
 
 #include "ICommand.hpp"
 
+
 class Join : public ICommand
 {
     private:
@@ -12,6 +13,7 @@ class Join : public ICommand
         Join(Server* server);
         ~Join();
 
+	
         void execute(Client* client, const std::vector<std::string>& params);
 		std::string getCmdName() const;
 		bool hasPermission(Client* client);
