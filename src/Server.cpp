@@ -6,6 +6,7 @@
 #include "commands/Ping.hpp"
 #include "commands/Join.hpp"
 #include "commands/PrivMsg.hpp"
+#include "commands/Kick.hpp"
 #include "ResponseMessage.hpp"
 
 Server::Server(const std::string &portRaw, const std::string &password)
@@ -150,7 +151,7 @@ void Server::initCommands()
     _commandHandler->registerCommand(new Ping(this));
 	_commandHandler->registerCommand(new Join(this));
 	_commandHandler->registerCommand(new Privmsg(this));
-    
+	_commandHandler->registerCommand(new Kick(this));
     // Qui registreremo anche tutti gli altri comandi IRC
 
 }
