@@ -40,7 +40,7 @@ bool CommandHandler::executeCommand(Client* client, const std::string& rawInput)
     // cerco il comando nella mappa
     std::map<std::string, ICommand*>::iterator cmdIt = _commands.find(commandName);
     if (cmdIt == _commands.end()) {
-        Logger::debug("Command not found: " + commandName);
+        Logger::error("Command not found: " + commandName);
         // TODO: Invia errore 421 (comando sconosciuto) al client
         return false;
     }
@@ -70,13 +70,13 @@ bool CommandHandler::executeCommand(Client* client, const std::string& rawInput)
     
     // Verifico i permessi
     if (!cmdIt->second->hasPermission(client)) {
-        Logger::debug("Client does not have permission to execute command: " + commandName);
+        Logger::warning("Client does not have permission to execute command: " + commandName);
         // TODO: Invia errore appropriato al client
         return false;
     }
     
     // Eseguo il comando
-    Logger::info("Executing command: " + commandName);
+    Logger::debug("Executing command: " + commandName);
     cmdIt->second->execute(client, params);
     
     return true;

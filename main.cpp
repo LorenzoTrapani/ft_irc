@@ -5,9 +5,7 @@ bool	running = false;
 
 void	handle_sigint(int sig)
 {
-	if (sig == SIGINT)
-	{
-		Logger::info("Server stopped");
+	if (sig == SIGINT) {
 		running = false;
 	}
 }

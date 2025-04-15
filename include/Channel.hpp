@@ -38,6 +38,7 @@ public:
     unsigned int            getUserLimit() const;
     std::string             getModes() const;
     const std::set<int>&    getMembers() const;
+	std::string             getPassword() const;
     
     // Setters
     void                    setTopic(const std::string& topic, int clientFd);
@@ -56,7 +57,7 @@ public:
 
     // Gestione utenti
     bool                    addClientToChannel(Client* client, const std::string &password);
-    bool                    removeClientFromChannel(int clientTargetFd, int clientOperatorFd);
+    bool                    removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick);
     void                    promoteToOperator(int clientTargetFd, int clientOperatorFd);
     void                    demoteOperator(int clientTargetFd, int clientOperatorFd);
     void                    invite(int clientTargetFd, int clientOperatorFd);

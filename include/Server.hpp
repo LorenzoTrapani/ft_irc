@@ -55,6 +55,7 @@ class Server
 		// Channel methods
 		void		sendMessageToClient(int clientFd, const std::string& message);
 		void		removeChannel(const std::string& channelName);
+		void		disconnectClientFromChannels(int clientFd);
 		void		addChannel(const std::string& channelName, Channel* channel);
 		Channel*	getChannel(const std::string& channelName);
 
@@ -62,7 +63,7 @@ class Server
         uint16_t			getPort() const;
         const std::string&	getPassword() const;
         const std::map<int, Client*>& getClients() const;
-
+		Client*				getClient(int clientFd) const;
         // Exceptions
         class ServerException : public std::runtime_error {
             public:
