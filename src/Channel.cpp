@@ -16,7 +16,7 @@ Channel::Channel(const std::string& name, Client* creator, Server* server)
         throw ChannelError("Cannot create a channel without an initial user");
     _operators.insert(creator->getSocketFd());
     _members.insert(creator->getSocketFd());
-    Logger::info("Channel " + _name + " created by " + creator->getIpAddr());
+    Logger::info("Channel " + _name + " created by " + creator->getNickname());
 }
 
 Channel::~Channel()
@@ -149,9 +149,9 @@ bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd, 
 	if (_operators.empty() && !_members.empty()) {
 		int newOperatorFd = *_members.begin();
 		_operators.insert(newOperatorFd);
-		Logger::info("Channel " + _name + " has new operator: " + intToStr(newOperatorFd));
+		Logger::info("Channel " + _name + " has new operator: " + _server->getClient(newOperatorFd)->getNickname());
 	}
-    Logger::info("Client " + intToStr(clientTargetFd) + " removed from channel " + _name);
+    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " removed from channel " + _name);
     return true;
 }
 
@@ -162,7 +162,7 @@ void Channel::promoteToOperator(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _operators.insert(clientTargetFd);
-    Logger::info("Client " + intToStr(clientTargetFd) + " promoted to operator in channel " + _name);
+    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " promoted to operator in channel " + _name);
 }
 
 void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd) 
@@ -172,7 +172,7 @@ void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _operators.erase(clientTargetFd);
-    Logger::info("Client " + intToStr(clientTargetFd) + " demoted from operator in channel " + _name);
+    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " demoted from operator in channel " + _name);
 }
 
 void Channel::invite(int clientTargetFd, int clientOperatorFd)
@@ -182,7 +182,7 @@ void Channel::invite(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _invited.insert(clientTargetFd);
-    Logger::info("Client " + intToStr(clientTargetFd) + " invited to channel " + _name);
+    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " invited to channel " + _name);
 }
 
 void Channel::sendMessage(const std::string& message, Client* sender)

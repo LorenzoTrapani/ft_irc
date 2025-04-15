@@ -315,7 +315,8 @@ void Server::handleConnections()
 					continue;
 				}
 			}
-			
+
+			//da capire se questo è necessario
 			// Se c'è possibilità di scrittura su questo socket client
 			if (client && FD_ISSET(clientFd, &writeFds))
 			{
@@ -418,9 +419,10 @@ void Server::removeChannel(const std::string& channelName)
 {
     std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
     if (it != _channels.end()) {
+		std::string name = channelName;
         delete it->second;
         _channels.erase(it);
-        Logger::info("Channel " + channelName + " has been removed");
+        Logger::info("Channel " + name + " has been removed");
 		return;
     }
 	Logger::error("Tried to remove non-existent channel " + channelName);
@@ -442,19 +444,26 @@ void Server::addChannel(const std::string& channelName, Channel* channel)
 
 void Server::disconnectClientFromChannels(int socketFd)
 {
-    std::map<std::string, Channel*>::iterator it = _channels.begin();
-    while (it != _channels.end())
-    {
-        Channel* channel = it->second;
-        if (channel->isInChannel(socketFd))
-        {
-            channel->removeClientFromChannel(socketFd, socketFd, false);
-            it = _channels.begin();  // Riparti dall'inizio perché la mappa potrebbe essere stata modificata
+	std::vector<std::string> channelsWithClient;
+    // raccolgo tutti i canali in cui il client è presente
+    for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        if (it->second->isInChannel(socketFd)) {
+            channelsWithClient.push_back(it->first);
         }
-        else
-            ++it;
     }
-	Logger::info("Client " + _clients[socketFd]->getNickname() + " disconnected from all channels");
+    
+    //rimuovo il client da ogni canale
+    for (std::vector<std::string>::iterator it = channelsWithClient.begin(); it != channelsWithClient.end(); ++it) {
+        Channel* channel = getChannel(*it);
+        if (channel) {
+            channel->removeClientFromChannel(socketFd, socketFd, false);
+        }
+    }
+
+    std::string clientInfo = _clients[socketFd]->getNickname();
+    if (clientInfo.empty())
+        clientInfo = intToStr(socketFd);
+    Logger::info("Client " + clientInfo + " disconnected from all channels");
 }
 
 // Getters
