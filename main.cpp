@@ -3,7 +3,7 @@
 
 bool	running = false;
 
-void	handle_sigint(int sig)
+void	handleSigint(int sig)
 {
 	if (sig == SIGINT) {
 		running = false;
@@ -20,7 +20,7 @@ int	main(int argc, char **argv)
     
     try {
         Server server(argv[1], argv[2]);
-		signal(SIGINT, handle_sigint);
+		signal(SIGINT, handleSigint);
         server.run();
     }
     catch (const std::invalid_argument &e) {

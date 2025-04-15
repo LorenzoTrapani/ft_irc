@@ -5,6 +5,8 @@
 #include "commands/User.hpp"
 #include "commands/Ping.hpp"
 #include "commands/Join.hpp"
+#include "commands/PrivMsg.hpp"
+#include "commands/Kick.hpp"
 #include "ResponseMessage.hpp"
 
 Server::Server(const std::string &portRaw, const std::string &password)
@@ -90,8 +92,7 @@ void Server::initIpAddress()
         close(tempSocketFd);
         throw ServerException("Failed to convert IP to string");
     }
-    
-	//TODO: Controllare se e' da modificare questo ultimo pezzo o se e' giusto cosi'
+	
     std::string host(ipStr);
     close(tempSocketFd);
     ResponseMessage::setHostname(host);
@@ -149,7 +150,8 @@ void Server::initCommands()
     _commandHandler->registerCommand(new User(this));
     _commandHandler->registerCommand(new Ping(this));
 	_commandHandler->registerCommand(new Join(this));
-    
+	_commandHandler->registerCommand(new Privmsg(this));
+	_commandHandler->registerCommand(new Kick(this));
     // Qui registreremo anche tutti gli altri comandi IRC
 
 }
@@ -183,37 +185,6 @@ void Server::listenForConnections()
 	if (listen(_socket, MAX_CONNECTIONS) < 0)
 		throw ServerException("Failed to listen for connections");
 }
-
-std::string Server::generatePingToken() const
-{
-    // Genera un token semplice basato sul timestamp corrente
-    std::stringstream ss;
-    ss << time(NULL);
-    return ss.str();
-}
-
-// void Server::checkPingClients()
-// {
-//     time_t currentTime = time(NULL);
-    
-//     // Invia PING ogni PING_INTERVAL secondi
-//     if (currentTime - _lastPingTime >= PING_INTERVAL) {
-//         _lastPingTime = currentTime;
-        
-//         std::string token = generatePingToken();
-        
-//         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-//             Client* client = it->second;
-            
-//             // Invia PING solo ai client autenticati
-//             if (client->isAuthenticated() && !client->getNickname().empty() && !client->getUsername().empty()) {
-//                 ResponseMessage::sendPing(client, token);
-//             }
-//         }
-        
-//         Logger::debug("Sent PING to all authenticated clients");
-//     }
-// }
 
 void Server::handleConnections()
 {
@@ -402,6 +373,11 @@ void Server::sendMessageToClient(int clientFd, const std::string& message)
 	send(clientFd, message.c_str(), message.size(), 0);
 }
 
+void Server::addChannel(const std::string& channelName, Channel* channel)
+{
+    _channels[channelName] = channel;
+}
+
 void Server::removeChannel(const std::string& channelName)
 {
     std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
@@ -412,19 +388,6 @@ void Server::removeChannel(const std::string& channelName)
 		return;
     }
 	Logger::error("Tried to remove non-existent channel " + channelName);
-}
-
-Channel* Server::getChannel(const std::string& channelName)
-{
-    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
-    if (it != _channels.end())
-        return it->second;
-    return NULL;
-}
-
-void Server::addChannel(const std::string& channelName, Channel* channel)
-{
-    _channels[channelName] = channel;
 }
 
 void Server::disconnectClientFromChannels(int socketFd)
@@ -458,6 +421,14 @@ uint16_t Server::getPort() const { return _port; }
 const std::string& Server::getPassword() const { return _password; }
 const std::map<int, Client*>& Server::getClients() const { return _clients; }
 
+Channel* Server::getChannel(const std::string& channelName)
+{
+    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
+    if (it != _channels.end())
+        return it->second;
+    return NULL;
+}
+
 Client* Server::getClient(int clientFd) const {
     if (clientFd < 0)
         return NULL;
@@ -465,4 +436,12 @@ Client* Server::getClient(int clientFd) const {
     if (it == _clients.end())
         return NULL;
     return it->second;
+}
+
+Client* Server::getClientByNick(const std::string& nickname) const {
+    for (std::map<int, Client*>::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == nickname)
+            return it->second;
+    }
+	return NULL;
 }

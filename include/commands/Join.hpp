@@ -2,7 +2,7 @@
 #define JOIN_HPP
 
 #include "ICommand.hpp"
-#include "Server.hpp"
+
 
 class Join : public ICommand
 {
@@ -13,6 +13,7 @@ class Join : public ICommand
         Join(Server* server);
         ~Join();
 
+	
         void execute(Client* client, const std::vector<std::string>& params);
 		std::string getCmdName() const;
 		bool hasPermission(Client* client);

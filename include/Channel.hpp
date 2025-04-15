@@ -14,22 +14,29 @@ class Server;
 class Channel
 {
 private:
-	Server*			_server;
-    std::string     _name;                        // Nome del canale (deve iniziare con #)
-    std::string     _topic;                       // Topic/descrizione del canale
-    std::string     _password;                    // Password del canale (se protetto)
+	Server*					_server;
+    std::string     		_name;                        // Nome del canale (deve iniziare con #)
+    std::string     		_topic;                       // Topic/descrizione del canale
+    std::string     		_password;                    // Password del canale (se protetto)
     
-    std::set<int>   _members;                     // Set degli FD dei client nel canale
-    std::set<int>   _operators;                   // Set degli operatori (admin) del canale
-    std::set<int>   _invited;                     // Set dei client invitati al canale
+    std::set<int>   		_members;                     // Set degli FD dei client nel canale
+    std::set<int>   		_operators;                   // Set degli operatori (admin) del canale
+    std::set<int>   		_invited;                     // Set dei client invitati al canale
 
-    bool            _inviteOnly;                  // Modalità: solo su invito
-    bool            _topicRestricted;             // Modalità: topic modificabile solo dagli operatori
-    unsigned int    _userLimit;                   // Limite massimo di utenti (0 = nessun limite)
+    bool            		_inviteOnly;                  // Modalità: solo su invito
+    bool            		_topicRestricted;             // Modalità: topic modificabile solo dagli operatori
+    unsigned int    		_userLimit;                   // Limite massimo di utenti (0 = nessun limite)
 
 public:
     Channel(const std::string& name, Client* creator, Server* server);
     ~Channel();
+
+	enum JoinError {
+		JOIN_SUCCESS,
+		JOIN_ERR_INVITE_ONLY,
+		JOIN_ERR_BAD_PASSWORD,
+		JOIN_ERR_CHANNEL_FULL
+	};
 
     // Getters
     const std::string&      getName() const;
@@ -37,7 +44,6 @@ public:
     unsigned int            getUserCount() const;
     unsigned int            getUserLimit() const;
     std::string             getModes() const;
-    const std::set<int>&    getMembers() const;
 	std::string             getPassword() const;
     
     // Setters
@@ -54,9 +60,9 @@ public:
     bool                    isOperator(int clientFd) const;
     bool                    isInChannel(int clientFd) const;
     bool                    isInvited(int clientFd) const;
-
+    bool                    isValidChannelName(const std::string& name);
     // Gestione utenti
-    bool                    addClientToChannel(Client* client, const std::string &password);
+    JoinError         addClientToChannel(Client* client, const std::string &password);
     bool                    removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick);
     void                    promoteToOperator(int clientTargetFd, int clientOperatorFd);
     void                    demoteOperator(int clientTargetFd, int clientOperatorFd);

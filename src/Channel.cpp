@@ -10,10 +10,13 @@ Channel::Channel(const std::string& name, Client* creator, Server* server)
       _topicRestricted(true), 
       _userLimit(0)
 {
-     if (name.empty() || name[0] != '#')
-        throw ChannelError("Channel name must start with #");
-    if (!creator)
+
+    if (name.empty() || !isValidChannelName(name)) {
+        throw ChannelError("Invalid channel name");
+    }
+    if (!creator) {
         throw ChannelError("Cannot create a channel without an initial user");
+    }
     _operators.insert(creator->getSocketFd());
     _members.insert(creator->getSocketFd());
     Logger::info("Channel " + _name + " created by " + creator->getNickname());
@@ -27,14 +30,31 @@ Channel::~Channel()
     _invited.clear();
 }
 
+bool Channel::isValidChannelName(const std::string& name) {
+    if (name.empty() || name[0] != '#')
+        return false;
+        
+    // Controlla lunghezza
+    if (name.length() > 50)
+        return false;
+        
+    // Controlla caratteri validi
+    for (size_t i = 1; i < name.length(); ++i) {
+        char c = name[i];
+        if (c <= 32 || c == ',' || c == ':' || c == ' ')
+            return false;
+    }
+    return true;
+}
+
 // Getters
 const std::string& Channel::getName() const { return _name; }
 const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
 std::string Channel::getPassword() const { return _password; }
-const std::set<int>& Channel::getMembers() const {return _members;}
 
+// Controlli
 bool Channel::isInviteOnly() const { return _inviteOnly; }
 bool Channel::isTopicRestricted() const { return _topicRestricted; }
 bool Channel::hasPassword() const { return !_password.empty(); }
@@ -45,12 +65,18 @@ bool Channel::isInvited(int clientFd) const { return _invited.find(clientFd) != 
 // Setters
 void Channel::setTopic(const std::string& topic, int clientFd)
 {
+	static const size_t MAX_TOPIC_LENGTH = 307; //307 è standard IRC
     // Solo gli operatori possono modificare il topic se è ristretto
     if (_topicRestricted && !isOperator(clientFd))
     {
         Logger::warning("Non-operator tried to change topic in channel " + _name);
         return;
     }
+	if (topic.length() > MAX_TOPIC_LENGTH)
+	{
+		Logger::warning("Topic is too long in channel " + _name);
+		return;
+	}
     
     _topic = topic;
     Logger::info("Topic changed in channel " + _name + ": " + _topic);
@@ -114,23 +140,23 @@ void Channel::setUserLimit(unsigned int limit, int clientFd)
         Logger::info("User limit removed from channel " + _name);
 }
 
-bool Channel::addClientToChannel(Client* client, const std::string &password)
+Channel::JoinError Channel::addClientToChannel(Client* client, const std::string &password)
 {
     if (isInviteOnly() && !isInvited(client->getSocketFd())) {
         Logger::warning("Client " + client->getIpAddr() + " tried to join invite-only channel " + _name + " but is not invited");
-        return false;
+        return JOIN_ERR_INVITE_ONLY;
     }
     if (hasPassword() && password != _password) {
         Logger::warning("Client " + client->getIpAddr() + " tried to join password-protected channel " + _name + " with incorrect password");
-        return false;
+        return JOIN_ERR_BAD_PASSWORD;
     }
     if (_userLimit > 0 && getUserCount() >= _userLimit) {
         Logger::warning("Channel " + _name + " is full (limit: " + intToStr(_userLimit) + ")");
-        return false;
+        return JOIN_ERR_CHANNEL_FULL;
     }
     _members.insert(client->getSocketFd());
     Logger::info("Client " + client->getIpAddr() + " added to channel " + _name);
-    return true;
+    return JOIN_SUCCESS;
 }
 
 bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick)
