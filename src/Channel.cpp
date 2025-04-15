@@ -21,7 +21,7 @@ Channel::Channel(const std::string& name, Client* creator, Server* server)
 
 Channel::~Channel()
 {
-    Logger::info("Channel " + _name + " destroyed");
+    Logger::info("Channel " + _name + " has been destroyed");
     _members.clear();
     _operators.clear();
     _invited.clear();

@@ -21,6 +21,7 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
     // Verifica che il nome del canale inizi con #
     if (channelName[0] != '#') {
         ResponseMessage::sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
+		Logger::error("Client " + client->getNickname() + " tried to join channel " + channelName + " but it doesn't start with #");
         return;
     }
 	
@@ -30,10 +31,15 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
         try {
             channel = new Channel(channelName, client, _server);
             _server->addChannel(channelName, channel);
+
+			//check password
+			if (!password.empty()) {
+				channel->setPassword(password, client->getSocketFd());
+			}
             
             // Invia messaggio di join al client
             std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN " + channelName;
-            // channel->sendServerMessage(joinMsg);
+            channel->sendServerMessage(joinMsg);
             return;
         } catch (const Channel::ChannelError& e) {
             ResponseMessage::sendError(client, ERR_NOSUCHCHANNEL, channelName + " :" + e.what());

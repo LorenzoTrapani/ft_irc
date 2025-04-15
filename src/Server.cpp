@@ -413,7 +413,6 @@ void Server::removeChannel(const std::string& channelName)
 		std::string name = channelName;
         delete it->second;
         _channels.erase(it);
-        Logger::info("Channel " + name + " has been removed");
 		return;
     }
 	Logger::error("Tried to remove non-existent channel " + channelName);
@@ -430,7 +429,6 @@ Channel* Server::getChannel(const std::string& channelName)
 void Server::addChannel(const std::string& channelName, Channel* channel)
 {
     _channels[channelName] = channel;
-    Logger::info("Channel " + channelName + " added");
 }
 
 void Server::disconnectClientFromChannels(int socketFd)

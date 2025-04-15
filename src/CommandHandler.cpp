@@ -76,7 +76,7 @@ bool CommandHandler::executeCommand(Client* client, const std::string& rawInput)
     }
     
     // Eseguo il comando
-    Logger::info("Executing command: " + commandName);
+    Logger::debug("Executing command: " + commandName);
     cmdIt->second->execute(client, params);
     
     return true;
