@@ -148,10 +148,13 @@ bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd, 
 	}
 	if (_operators.empty() && !_members.empty()) {
 		int newOperatorFd = *_members.begin();
-		_operators.insert(newOperatorFd);
-		Logger::info("Channel " + _name + " has new operator: " + _server->getClient(newOperatorFd)->getNickname());
+		Client* newOperator = _server->getClient(newOperatorFd);
+		if (newOperator)
+			Logger::info("Channel " + _name + " has new operator: " + newOperator->getNickname());
 	}
-    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " removed from channel " + _name);
+    Client* targetClient = _server->getClient(clientTargetFd);
+    if (targetClient)
+        Logger::info("Client " + targetClient->getNickname() + " removed from channel " + _name);
     return true;
 }
 
@@ -162,7 +165,9 @@ void Channel::promoteToOperator(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _operators.insert(clientTargetFd);
-    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " promoted to operator in channel " + _name);
+    Client* targetClient = _server->getClient(clientTargetFd);
+    if (targetClient)
+        Logger::info("Client " + targetClient->getNickname() + " promoted to operator in channel " + _name);
 }
 
 void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd) 
@@ -172,7 +177,9 @@ void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _operators.erase(clientTargetFd);
-    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " demoted from operator in channel " + _name);
+    Client* targetClient = _server->getClient(clientTargetFd);
+    if (targetClient)
+        Logger::info("Client " + targetClient->getNickname() + " demoted from operator in channel " + _name);
 }
 
 void Channel::invite(int clientTargetFd, int clientOperatorFd)
@@ -182,7 +189,9 @@ void Channel::invite(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _invited.insert(clientTargetFd);
-    Logger::info("Client " + _server->getClient(clientTargetFd)->getNickname() + " invited to channel " + _name);
+    Client* targetClient = _server->getClient(clientTargetFd);
+    if (targetClient)
+        Logger::info("Client " + targetClient->getNickname() + " invited to channel " + _name);
 }
 
 void Channel::sendMessage(const std::string& message, Client* sender)

@@ -65,7 +65,7 @@ class Server
         uint16_t			getPort() const;
         const std::string&	getPassword() const;
         const std::map<int, Client*>& getClients() const;
-
+		Client*				getClient(int clientFd) const;
         // Exceptions
         class ServerException : public std::runtime_error {
             public:

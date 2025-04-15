@@ -22,8 +22,6 @@ Server::Server(const std::string &portRaw, const std::string &password)
     _socket = -1;
     _commandHandler = NULL;
 	initIpAddress();
-
-	Logger::debug("Server initialized on port:" + intToStr(_port) + " with password " + _password);
 }
 
 Server::~Server() 
@@ -99,7 +97,6 @@ void Server::initIpAddress()
 	//TODO: Controllare se e' da modificare questo ultimo pezzo o se e' giusto cosi'
     std::string host(ipStr);
     close(tempSocketFd);
-	Logger::debug("Server IP: " + host);
     ResponseMessage::setHostname(host);
 }
 
@@ -135,7 +132,6 @@ void Server::removeClient(int socketFd)
         std::string clientInfo = clientToDelete->getIpAddr();
         if (!clientToDelete->getNickname().empty())
             clientInfo += " (" + clientToDelete->getNickname() + ")";
-        Logger::info("Removing client " + clientInfo);
 
         // Prima rimuovi il client da tutti i canali
         disconnectClientFromChannels(socketFd);
@@ -168,7 +164,7 @@ void Server::run()
 	bindSocket();
 	listenForConnections();
     initCommands();
-    Logger::info("Server RUNNING");
+    Logger::info("Server RUNNING on port " + intToStr(_port));
 	running = true;
 	handleConnections();
 }
@@ -184,14 +180,12 @@ void Server::bindSocket()
     if (bind(_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         throw ServerException("Failed to bind socket: Port " + intToStr(_port) + " is already in use");
     }
-	Logger::info("Socket bound to port " + intToStr(_port));
 }
 
 void Server::listenForConnections()
 {
-	if (listen(_socket, 5) < 0)
+	if (listen(_socket, MAX_CONNECTIONS) < 0)
 		throw ServerException("Failed to listen for connections");
-	Logger::info("Listening for connections on port " + intToStr(_port));
 }
 
 std::string Server::generatePingToken() const
@@ -389,10 +383,7 @@ bool Server::handleClientData(int clientFd)
 	
 	// Termina il buffer con un null byte per sicurezza
 	buffer[bytesRead] = '\0';
-	
-	// Logga il messaggio ricevuto
-	Logger::debug("Received data from client: " + std::string(buffer));
-	
+		
 	// Ottieni il client corrente
 	Client* client = _clients[clientFd];
 	
@@ -451,6 +442,8 @@ void Server::disconnectClientFromChannels(int socketFd)
             channelsWithClient.push_back(it->first);
         }
     }
+	if (channelsWithClient.empty())
+		return;
     
     //rimuovo il client da ogni canale
     for (std::vector<std::string>::iterator it = channelsWithClient.begin(); it != channelsWithClient.end(); ++it) {
@@ -470,3 +463,12 @@ void Server::disconnectClientFromChannels(int socketFd)
 uint16_t Server::getPort() const { return _port; }
 const std::string& Server::getPassword() const { return _password; }
 const std::map<int, Client*>& Server::getClients() const { return _clients; }
+
+Client* Server::getClient(int clientFd) const {
+    if (clientFd < 0)
+        return NULL;
+    std::map<int, Client*>::const_iterator it = _clients.find(clientFd);
+    if (it == _clients.end())
+        return NULL;
+    return it->second;
+}
