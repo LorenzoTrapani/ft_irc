@@ -14,18 +14,18 @@ class Server;
 class Channel
 {
 private:
-	Server*			_server;
-    std::string     _name;                        // Nome del canale (deve iniziare con #)
-    std::string     _topic;                       // Topic/descrizione del canale
-    std::string     _password;                    // Password del canale (se protetto)
+	Server*					_server;
+    std::string     		_name;                        // Nome del canale (deve iniziare con #)
+    std::string     		_topic;                       // Topic/descrizione del canale
+    std::string     		_password;                    // Password del canale (se protetto)
     
-    std::set<int>   _members;                     // Set degli FD dei client nel canale
-    std::set<int>   _operators;                   // Set degli operatori (admin) del canale
-    std::set<int>   _invited;                     // Set dei client invitati al canale
+    std::set<int>   		_members;                     // Set degli FD dei client nel canale
+    std::set<int>   		_operators;                   // Set degli operatori (admin) del canale
+    std::set<int>   		_invited;                     // Set dei client invitati al canale
 
-    bool            _inviteOnly;                  // Modalità: solo su invito
-    bool            _topicRestricted;             // Modalità: topic modificabile solo dagli operatori
-    unsigned int    _userLimit;                   // Limite massimo di utenti (0 = nessun limite)
+    bool            		_inviteOnly;                  // Modalità: solo su invito
+    bool            		_topicRestricted;             // Modalità: topic modificabile solo dagli operatori
+    unsigned int    		_userLimit;                   // Limite massimo di utenti (0 = nessun limite)
 
 public:
     Channel(const std::string& name, Client* creator, Server* server);

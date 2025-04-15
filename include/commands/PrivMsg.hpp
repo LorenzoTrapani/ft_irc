@@ -6,6 +6,7 @@
 class Privmsg : public ICommand {
 private:
     Server* _server;
+	
 public:
     Privmsg(Server* server);
     ~Privmsg();

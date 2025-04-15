@@ -33,38 +33,38 @@ class Server
         static const int 				MAX_CONNECTIONS = 10;
         std::map<int, Client*>			_clients;
 		std::map<std::string, Channel*>	_channels;
-        CommandHandler*     		_commandHandler;
+        CommandHandler*     			_commandHandler;
 
         // Private methods
-        void    initSocket();
-        void    bindSocket();
-        void    listenForConnections();
-        void    handleConnections();
-        void    initIpAddress();
-        void    removeClient(int socketFd);
-        void    acceptNewConnection();
-        bool    handleClientData(int clientFd);
-        void    initCommands();
+        void    						initSocket();
+        void    						bindSocket();
+        void    						listenForConnections();
+        void    						handleConnections();
+        void    						initIpAddress();
+        void    						removeClient(int socketFd);
+        void    						acceptNewConnection();
+        bool    						handleClientData(int clientFd);
+        void    						initCommands();
 
     public:
         Server(const std::string &portRaw, const std::string &password);
         ~Server();
 
-        void		run();
+        void							run();
 
 		// Channel methods
-		void		sendMessageToClient(int clientFd, const std::string& message);
-		void		removeChannel(const std::string& channelName);
-		void		disconnectClientFromChannels(int clientFd);
-		void		addChannel(const std::string& channelName, Channel* channel);
-		Channel*	getChannel(const std::string& channelName);
+		void							sendMessageToClient(int clientFd, const std::string& message);
+		void							removeChannel(const std::string& channelName);
+		void							disconnectClientFromChannels(int clientFd);
+		void							addChannel(const std::string& channelName, Channel* channel);
+		Channel*						getChannel(const std::string& channelName);
 
         // Getters
-        uint16_t			getPort() const;
-        const std::string&	getPassword() const;
-        const std::map<int, Client*>& getClients() const;
-		Client*				getClient(int clientFd) const;
-		Client*				getClientByNick(const std::string& nickname) const;
+        uint16_t						getPort() const;
+        const std::string&				getPassword() const;
+        const std::map<int, Client*>& 	getClients() const;
+		Client*							getClient(int clientFd) const;
+		Client*							getClientByNick(const std::string& nickname) const;
 		
         // Exceptions
         class ServerException : public std::runtime_error {
@@ -77,4 +77,5 @@ class Server
                 explicit InvalidArgument(const std::string& msg) : std::invalid_argument(msg) {}
         };
 };
+
 #endif
