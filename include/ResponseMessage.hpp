@@ -34,9 +34,10 @@ enum ResponseCode {
 	ERR_INVITEONLYCHAN = 473,        // <channel> :Cannot join channel (+i)
 	ERR_BADCHANNELKEY = 475,         // <channel> :Cannot join channel (+k)
 	ERR_CHANNELISFULL = 471,         // <channel> :Cannot join channel (+l)
+	ERR_CANNOTSENDTOCHAN = 404,     // <channel> :Cannot send to channel
+	ERR_NORECIPIENT = 411,          // :No recipient given (PRIVMSG)
+	ERR_NOTEXTTOSEND = 412,         // :No text to send
 
-    // Risposte PING/PONG
-    RPL_PONG = 0                     // PONG è un comando speciale, non un codice numerico
 };
 
 class ResponseMessage {

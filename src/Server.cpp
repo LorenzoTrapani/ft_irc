@@ -5,6 +5,7 @@
 #include "commands/User.hpp"
 #include "commands/Ping.hpp"
 #include "commands/Join.hpp"
+#include "commands/PrivMsg.hpp"
 #include "ResponseMessage.hpp"
 
 Server::Server(const std::string &portRaw, const std::string &password)
@@ -149,6 +150,7 @@ void Server::initCommands()
     _commandHandler->registerCommand(new User(this));
     _commandHandler->registerCommand(new Ping(this));
 	_commandHandler->registerCommand(new Join(this));
+	_commandHandler->registerCommand(new Privmsg(this));
     
     // Qui registreremo anche tutti gli altri comandi IRC
 
@@ -183,37 +185,6 @@ void Server::listenForConnections()
 	if (listen(_socket, MAX_CONNECTIONS) < 0)
 		throw ServerException("Failed to listen for connections");
 }
-
-std::string Server::generatePingToken() const
-{
-    // Genera un token semplice basato sul timestamp corrente
-    std::stringstream ss;
-    ss << time(NULL);
-    return ss.str();
-}
-
-// void Server::checkPingClients()
-// {
-//     time_t currentTime = time(NULL);
-    
-//     // Invia PING ogni PING_INTERVAL secondi
-//     if (currentTime - _lastPingTime >= PING_INTERVAL) {
-//         _lastPingTime = currentTime;
-        
-//         std::string token = generatePingToken();
-        
-//         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-//             Client* client = it->second;
-            
-//             // Invia PING solo ai client autenticati
-//             if (client->isAuthenticated() && !client->getNickname().empty() && !client->getUsername().empty()) {
-//                 ResponseMessage::sendPing(client, token);
-//             }
-//         }
-        
-//         Logger::debug("Sent PING to all authenticated clients");
-//     }
-// }
 
 void Server::handleConnections()
 {
@@ -465,4 +436,12 @@ Client* Server::getClient(int clientFd) const {
     if (it == _clients.end())
         return NULL;
     return it->second;
+}
+
+Client* Server::getClientByNick(const std::string& nickname) const {
+    for (std::map<int, Client*>::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getNickname() == nickname)
+            return it->second;
+    }
+	return NULL;
 }

@@ -2,7 +2,6 @@
 #define JOIN_HPP
 
 #include "ICommand.hpp"
-#include "Server.hpp"
 
 class Join : public ICommand
 {

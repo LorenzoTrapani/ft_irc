@@ -64,6 +64,8 @@ class Server
         const std::string&	getPassword() const;
         const std::map<int, Client*>& getClients() const;
 		Client*				getClient(int clientFd) const;
+		Client*				getClientByNick(const std::string& nickname) const;
+		
         // Exceptions
         class ServerException : public std::runtime_error {
             public:
