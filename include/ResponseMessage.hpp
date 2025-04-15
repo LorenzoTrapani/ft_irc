@@ -37,6 +37,7 @@ enum ResponseCode {
 	ERR_CANNOTSENDTOCHAN = 404,     // <channel> :Cannot send to channel
 	ERR_NORECIPIENT = 411,          // :No recipient given (PRIVMSG)
 	ERR_NOTEXTTOSEND = 412,         // :No text to send
+	ERR_CHANOPRIVSNEEDED = 482,    // <channel> :You're not a channel operator
 
 };
 
