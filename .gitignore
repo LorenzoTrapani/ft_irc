@@ -1,0 +1,17 @@
+ircserv
+
+#executable
+*.exe
+*.out
+*.o
+*.a
+*.so
+
+nohup.out
+
+#logs
+*.log
+
+
+.vscode
+
