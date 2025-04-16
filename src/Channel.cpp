@@ -175,8 +175,11 @@ bool Channel::removeClientFromChannel(int clientTargetFd, int clientOperatorFd, 
 	if (_operators.empty() && !_members.empty()) {
 		int newOperatorFd = *_members.begin();
 		Client* newOperator = _server->getClient(newOperatorFd);
-		if (newOperator)
+		if (newOperator) {
+            _operators.insert(newOperator->getSocketFd());
 			Logger::info("Channel " + _name + " has new operator: " + newOperator->getNickname());
+        }
+
 	}
     Client* targetClient = _server->getClient(clientTargetFd);
     if (targetClient)

@@ -153,7 +153,7 @@ void Server::initCommands()
     _commandHandler->registerCommand(new Ping(this));
 	_commandHandler->registerCommand(new Join(this));
 	_commandHandler->registerCommand(new Privmsg(this));
-	// _commandHandler->registerCommand(new Kick(this));
+	_commandHandler->registerCommand(new Kick(this));
 	_commandHandler->registerCommand(new Invite(this));
     _commandHandler->registerCommand(new Topic(this));
 
