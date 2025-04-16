@@ -7,6 +7,8 @@ Invite::Invite(Server* server) : _server(server) {}
 
 Invite::~Invite() {}
 
+// INVITE <nickname> <channel>
+
 void Invite::execute(Client* client, const std::vector<std::string>& params)
 {
     if (params.size() < 2) {
