@@ -15,16 +15,15 @@ class Mode : public ICommand
         void execute(Client* client, const std::vector<std::string>& params);
         bool hasPermission(Client* client);
         std::string getCmdName() const;
-
         void showChannelModes(Client* client, Channel* channel);
-		void processModes(Client* client, Channel* channel, const std::string& modes);
+		void processModes(Client* client, Channel* channel, const std::vector<std::string>& params);
 
 		//MODE HANDLERS
-		void handleOperatorMode(Channel* channel, const std::string& nick, bool adding);
-		void handleKeyMode(Channel* channel, const std::string& key, bool adding);
-		void handleInviteOnlyMode(Channel* channel, bool adding);
-		void handleTopicMode(Channel* channel, bool adding);
-		void handleChannelLimitMode(Channel* channel, int limit, bool adding);
+		void handleOperatorMode(Client* client, Channel* channel, const std::string& nick, bool adding);
+		void handleKeyMode(Client* client, Channel* channel, const std::string& key, bool adding);
+		void handleInviteOnlyMode(Client* client, Channel* channel, bool adding);
+		void handleTopicMode(Client* client, Channel* channel, bool adding);
+		void handleChannelLimitMode(Client* client, Channel* channel, int limit, bool adding);
 };
 
 #endif

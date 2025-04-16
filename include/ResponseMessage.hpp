@@ -18,6 +18,8 @@ enum ResponseCode {
 	RPL_TOPIC = 332,				// <client> <channel> :<topic>
     RPL_INVITING = 341,             // <client> <nick> <channel>
     RPL_NOTOPIC = 331,              // <client> <channel> :No topic is set
+	RPL_CHANNELMODEIS = 324,       // <channel> <mode> <mode params>
+
     
     // Errori (4xx, 5xx)
     ERR_NOSUCHNICK = 401,            // <nickname> :No such nick/channel
@@ -42,6 +44,7 @@ enum ResponseCode {
     ERR_CHANOPRIVSNEEDED = 482,     // <client> <channel> :You're not channel operator
 	ERR_UNKNOWNMODE = 472,          // <mode> <channel> :is unknown
 	ERR_UMODEUNKNOWNFLAG = 501,     // :Unknown MODE flag
+	ERR_INVALIDMODEPARAM = 474,     // <mode> <channel> :Invalid mode parameter
 };
 
 class ResponseMessage {
