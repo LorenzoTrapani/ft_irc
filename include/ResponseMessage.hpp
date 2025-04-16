@@ -15,8 +15,9 @@ enum ResponseCode {
     
     // Risposte dei comandi (3xx)
     RPL_ISON = 303,                  // :<nick1> <nick2> ...
-	RPL_TOPIC = 332,				// <channel> <topic>
+	RPL_TOPIC = 332,				// <client> <channel> :<topic>
     RPL_INVITING = 341,             // <client> <nick> <channel>
+    RPL_NOTOPIC = 331,              // <client> <channel> :No topic is set
     
     // Errori (4xx, 5xx)
     ERR_NOSUCHNICK = 401,            // <nickname> :No such nick/channel
@@ -38,6 +39,7 @@ enum ResponseCode {
 	ERR_CANNOTSENDTOCHAN = 404,     // <channel> :Cannot send to channel
 	ERR_NORECIPIENT = 411,          // :No recipient given (PRIVMSG)
 	ERR_NOTEXTTOSEND = 412,         // :No text to send
+    ERR_CHANOPRIVSNEEDED = 482,     // <client> <channel> :You're not channel operator
 
 };
 

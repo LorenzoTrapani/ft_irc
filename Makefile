@@ -21,9 +21,10 @@ SRC = main.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/PrivMsg.cpp \
 		./src/commands/Invite.cpp \
+		./src/commands/Topic.cpp \
 		# ./src/commands/Kick.cpp \
 		./src/commands/Mode.cpp \
-		./src/commands/Topic.cpp \
+		
 		
 
 all: $(NAME)
