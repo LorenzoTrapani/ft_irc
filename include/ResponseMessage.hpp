@@ -40,7 +40,8 @@ enum ResponseCode {
 	ERR_NORECIPIENT = 411,          // :No recipient given (PRIVMSG)
 	ERR_NOTEXTTOSEND = 412,         // :No text to send
     ERR_CHANOPRIVSNEEDED = 482,     // <client> <channel> :You're not channel operator
-
+	ERR_UNKNOWNMODE = 472,          // <mode> <channel> :is unknown
+	ERR_UMODEUNKNOWNFLAG = 501,     // :Unknown MODE flag
 };
 
 class ResponseMessage {

@@ -53,6 +53,7 @@ const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
 std::string Channel::getPassword() const { return _password; }
+std::string Channel::getParams() const { return _params; }
 
 // Controlli
 bool Channel::isInviteOnly() const { return _inviteOnly; }

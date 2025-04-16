@@ -44,6 +44,7 @@ public:
     unsigned int            getUserCount() const;
     unsigned int            getUserLimit() const;
     std::string             getModes() const;
+	std::string             getParams() const;
 	std::string             getPassword() const;
     
     // Setters

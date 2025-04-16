@@ -9,6 +9,7 @@
 #include "commands/Kick.hpp"
 #include "commands/Invite.hpp"
 #include "commands/Topic.hpp"
+#include "commands/Mode.hpp"
 #include "ResponseMessage.hpp"
 
 Server::Server(const std::string &portRaw, const std::string &password)
@@ -156,6 +157,7 @@ void Server::initCommands()
 	_commandHandler->registerCommand(new Kick(this));
 	_commandHandler->registerCommand(new Invite(this));
     _commandHandler->registerCommand(new Topic(this));
+	_commandHandler->registerCommand(new Mode(this));
 
 }
 
