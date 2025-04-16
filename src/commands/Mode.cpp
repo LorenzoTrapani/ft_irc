@@ -44,6 +44,7 @@ void Mode::execute(Client* client, const std::vector<std::string>& params)
 	processModes(client, channel, params);
 }
 
+//TODO: aggiungere caso in cui il canale non ha parametri
 void Mode::showChannelModes(Client* client, Channel* channel)
 {
     std::string modes = channel->getModes();
@@ -80,10 +81,7 @@ void Mode::processModes(Client* client, Channel* channel, const std::vector<std:
         else if (type == '-') {
             addMode = false;
             continue;
-    	} else {
-			ResponseMessage::sendError(client, ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag");
-			return;
-		}
+    	}
 
 		switch(type) {
 			case 'o': //operator

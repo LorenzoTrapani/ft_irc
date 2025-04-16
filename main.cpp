@@ -34,3 +34,7 @@ int	main(int argc, char **argv)
     
     return 0;
 }
+
+//TODO: controllare ogni cmd per casistiche tipo join un canale gia joinato da te in precedenza ma, togliere password quando già non è presente...
+//TODO: rework server.cpp 
+//TODO: sistemare messaggi inviati da server a client
