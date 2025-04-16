@@ -50,6 +50,4 @@ bool User::hasPermission(Client* client) {
     return true;
 }
 
-std::string User::getCmdName() const {
-    return "USER";
-}
+std::string User::getCmdName() const {return "USER";}

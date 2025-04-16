@@ -58,10 +58,6 @@ void Topic::execute(Client* client, const std::vector<std::string>& params)
     channel->sendServerMessage(topicMsg);
 }
 
-std::string Topic::getCmdName() const {
-    return "TOPIC";
-}
-
 bool Topic::hasPermission(Client* client) {
     if (!client->isAuthenticated()) {
         ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
@@ -69,3 +65,5 @@ bool Topic::hasPermission(Client* client) {
     }
     return true;
 }
+
+std::string Topic::getCmdName() const {return "TOPIC";}

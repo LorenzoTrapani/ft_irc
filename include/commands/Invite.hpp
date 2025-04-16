@@ -2,9 +2,6 @@
 #define INVITE_HPP
 
 #include "ICommand.hpp"
-#include "../ResponseMessage.hpp"
-#include "../Server.hpp"
-#include "../Logger.hpp"
 
 class Invite : public ICommand 
 {

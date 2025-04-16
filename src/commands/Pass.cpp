@@ -36,6 +36,4 @@ bool Pass::hasPermission(Client* client) {
     return true;
 }
 
-std::string Pass::getCmdName() const {
-    return "PASS";
-}
+std::string Pass::getCmdName() const {return "PASS";}

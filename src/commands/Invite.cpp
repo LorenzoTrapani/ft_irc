@@ -57,10 +57,6 @@ void Invite::execute(Client* client, const std::vector<std::string>& params)
     _server->sendMessageToClient(targetClient->getSocketFd(), inviteMsg);
 }
 
-std::string Invite::getCmdName() const {
-    return "INVITE";
-}
-
 bool Invite::hasPermission(Client* client) {
     if (!client->isAuthenticated()) {
         ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
@@ -68,3 +64,5 @@ bool Invite::hasPermission(Client* client) {
     }
     return true;
 }
+
+std::string Invite::getCmdName() const {return "INVITE";}
