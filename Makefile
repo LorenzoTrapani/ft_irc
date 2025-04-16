@@ -20,8 +20,8 @@ SRC = main.cpp \
 		./src/commands/Ping.cpp \
 		./src/commands/Join.cpp \
 		./src/commands/PrivMsg.cpp \
-		./src/commands/Kick.cpp \
-		# ./src/commands/Invite.cpp \
+		./src/commands/Invite.cpp \
+		# ./src/commands/Kick.cpp \
 		./src/commands/Mode.cpp \
 		./src/commands/Topic.cpp \
 		

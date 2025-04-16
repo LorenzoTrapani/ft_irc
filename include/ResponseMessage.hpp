@@ -16,6 +16,7 @@ enum ResponseCode {
     // Risposte dei comandi (3xx)
     RPL_ISON = 303,                  // :<nick1> <nick2> ...
 	RPL_TOPIC = 332,				// <channel> <topic>
+    RPL_INVITING = 341,             // <client> <nick> <channel>
     
     // Errori (4xx, 5xx)
     ERR_NOSUCHNICK = 401,            // <nickname> :No such nick/channel
