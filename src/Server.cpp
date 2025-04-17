@@ -124,20 +124,14 @@ void Server::removeClient(int socketFd)
     if (!_clients.count(socketFd))
         return;
 
-    // Find and remove the client from the vector
     std::map<int, Client*>::iterator it = _clients.find(socketFd);
     if (it != _clients.end()){
         Client* clientToDelete = it->second;
-
-        // Log della disconnessione
         std::string clientInfo = clientToDelete->getIpAddr();
         if (!clientToDelete->getNickname().empty())
             clientInfo += " (" + clientToDelete->getNickname() + ")";
 
-        // Prima rimuovi il client da tutti i canali
         disconnectClientFromChannels(socketFd);
-        
-        // Poi chiudi il socket e rimuovi il client
         close(socketFd);
         _clients.erase(it);
         delete clientToDelete;
@@ -207,8 +201,6 @@ void Server::handleConnections()
 
 		// Aggiungi il STDIN al set di lettura per ctrl+D
 		FD_SET(STDIN_FILENO, &readFds);
-		if (STDIN_FILENO > maxFd)
-            maxFd = STDIN_FILENO;
 		
 		// Aggiungi il socket principale al set di lettura
 		FD_SET(_socket, &readFds);
@@ -318,12 +310,9 @@ void Server::acceptNewConnection()
 		return;
 	}
 	
-	// Crea un nuovo client
 	Client* newClient = new Client();
 	newClient->setSocketFd(clientFd);
 	newClient->setIpAddr(inet_ntoa(clientAddr.sin_addr));
-	
-	// Aggiungi il client alla mappa
 	_clients[clientFd] = newClient;
 	
 	Logger::info("New client connected from " + newClient->getIpAddr());
@@ -340,20 +329,17 @@ bool Server::handleClientData(int clientFd)
 	{
 		if (bytesRead == 0) // client ctrl+C
 		{
-			// Connessione chiusa dal client
 			removeClient(clientFd);
 			Logger::info("Client disconnected gracefully");
 		}
-		else if (errno != EAGAIN && errno != EWOULDBLOCK)
+		else if (errno != EAGAIN && errno != EWOULDBLOCK) // errore reale
 		{
-			// Errore reale
 			removeClient(clientFd);
 			Logger::error("Error reading from client: " + std::string(strerror(errno)));
 		}
 		return false;
 	}
 	
-	// Termina il buffer con un null byte per sicurezza
 	buffer[bytesRead] = '\0';
 		
 	// Ottieni il client corrente

@@ -19,7 +19,7 @@ enum ResponseCode {
     RPL_INVITING = 341,             // <client> <nick> <channel>
     RPL_NOTOPIC = 331,              // <client> <channel> :No topic is set
 	RPL_CHANNELMODEIS = 324,       // <channel> <mode> <mode params>
-
+	RPL_CHANNELMSG = 329,           // <channel> :<message>
     
     // Errori (4xx, 5xx)
     ERR_NOSUCHNICK = 401,            // <nickname> :No such nick/channel
