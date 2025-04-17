@@ -213,7 +213,7 @@ void Mode::handleTopicMode(Client* client, Channel* channel, bool adding)
 		if (channel->isTopicRestricted()) {
 			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is already topic restricted");
 			return;
-		}n
+		}
 		channel->setTopicRestricted(true, client->getSocketFd());
 	} else {
 		if (!channel->isTopicRestricted()) {

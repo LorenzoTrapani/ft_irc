@@ -45,6 +45,8 @@ enum ResponseCode {
 	ERR_UNKNOWNMODE = 472,          // <mode> <channel> :is unknown
 	ERR_UMODEUNKNOWNFLAG = 501,     // :Unknown MODE flag
 	ERR_INVALIDMODEPARAM = 474,     // <mode> <channel> :Invalid mode parameter
+	ERR_USERONCHANNEL = 443,        // <nick> <channel> :is already on channel
+	ERR_NOMODESET = 475,            // <channel> :No modes are set on this channel
 };
 
 class ResponseMessage {
