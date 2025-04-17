@@ -49,23 +49,24 @@ void Mode::showChannelModes(Client* client, Channel* channel)
     std::string modes = channel->getModes();
     std::vector<std::string> params = channel->getParams();
     
-	if (modes.empty()) {
-		ResponseMessage::sendError(client, ERR_NOMODESET, channel->getName() + " :No modes are set on this channel");
-		return;
-	}
-
+    // Se non ci sono modi attivi, aggiungi un "+" vuoto
+    std::string modesPrefix = modes.empty() ? "+" : "+" + modes;
+    
+    // Costruisci la stringa dei parametri
     std::string paramsStr;
     for (size_t i = 0; i < params.size(); i++) {
         paramsStr += params[i] + " ";
     }
-
     
     // Rimuovi lo spazio finale se necessario
-    if (!paramsStr.empty())
+    if (!paramsStr.empty()) {
         paramsStr = paramsStr.substr(0, paramsStr.size() - 1);
+    }
     
-    ResponseMessage::sendNumeric(client, RPL_CHANNELMODEIS, channel->getName() + " " + modes + 
-                              (paramsStr.empty() ? "" : " " + paramsStr));
+    // Invia solo il formato standard conforme al protocollo IRC
+    ResponseMessage::sendNumeric(client, RPL_CHANNELMODEIS, 
+                               channel->getName() + " " + modesPrefix + 
+                               (paramsStr.empty() ? "" : " " + paramsStr));
 }
 
 void Mode::processModes(Client* client, Channel* channel, const std::vector<std::string>& params)
