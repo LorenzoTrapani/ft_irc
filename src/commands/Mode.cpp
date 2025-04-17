@@ -44,17 +44,21 @@ void Mode::execute(Client* client, const std::vector<std::string>& params)
 	processModes(client, channel, params);
 }
 
-//TODO: aggiungere caso in cui il canale non ha parametri
 void Mode::showChannelModes(Client* client, Channel* channel)
 {
     std::string modes = channel->getModes();
     std::vector<std::string> params = channel->getParams();
     
-    // Costruisci la stringa dei parametri
+	if (modes.empty()) {
+		ResponseMessage::sendError(client, ERR_NOMODESET, channel->getName() + " :No modes are set on this channel");
+		return;
+	}
+
     std::string paramsStr;
     for (size_t i = 0; i < params.size(); i++) {
         paramsStr += params[i] + " ";
     }
+
     
     // Rimuovi lo spazio finale se necessario
     if (!paramsStr.empty())

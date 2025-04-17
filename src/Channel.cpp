@@ -76,7 +76,6 @@ std::vector<std::string> Channel::getParams() const {
         else if (mode == 'l' && isLimited()) {
             paramsVector.push_back(intToStr(_userLimit));
         }
-        // TODO: Aggiungere altri parametri per futuri modi se necessario
     }
     
     return paramsVector;
