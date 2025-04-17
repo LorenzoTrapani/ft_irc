@@ -54,7 +54,7 @@ void Topic::execute(Client* client, const std::vector<std::string>& params)
     
     // Informo tutti i membri del canale (migliorabile i guess)
     std::string topicMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
-                          " TOPIC " + channelName + " :" + newTopic;
+                          " TOPIC " + channelName + " :" + newTopic + "\n";
     channel->sendServerMessage(topicMsg);
 }
 

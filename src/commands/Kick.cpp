@@ -46,7 +46,7 @@ void Kick::execute(Client* client, const std::vector<std::string>& params) {
 	std::string reason = (params.size() > 2) ? params[2] : "No reason given";
 	std::string kickMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + 
                      client->getIpAddr() + " KICK " + channelName + " " + 
-                     nickname + " :" + reason;
+                     nickname + " :" + reason + "\n";
 
 	channel->sendServerMessage(kickMsg);
 	channel->removeClientFromChannel(target->getSocketFd(), client->getSocketFd(), true);	

@@ -185,6 +185,8 @@ void Server::listenForConnections()
 		throw ServerException("Failed to listen for connections");
 }
 
+//TODO: refactorare handleConnections
+
 void Server::handleConnections()
 {
 	fd_set readFds, writeFds;
@@ -435,4 +437,14 @@ Client* Server::getClientByNick(const std::string& nickname) const {
             return it->second;
     }
 	return NULL;
+}
+
+std::vector<Channel*> Server::getChannelsForClient(int clientFd) {
+    std::vector<Channel*> channels;
+    for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        if (it->second->isInChannel(clientFd)) {
+            channels.push_back(it->second);
+        }
+    }
+    return channels;
 }

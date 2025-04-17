@@ -20,9 +20,26 @@ void Nick::execute(Client* client, const std::vector<std::string>& params) {
         ResponseMessage::sendError(client, ERR_NICKNAMEINUSE, nickname + " :Nickname is already in use");
         return;
     }
-    
+
+	std::string oldNickname = client->getNickname();
     client->setNickname(nickname);
-    Logger::info("Client " + client->getIpAddr() + " is now known as " + nickname);
+        
+    if (oldNickname.empty()) {
+        Logger::info("Client " + client->getIpAddr() + " set nickname to " + nickname);
+        
+        // TODO: vedere se è necessario inviare un welcome
+		return;
+    }
+
+    std::string nickChangeMsg = ":" + oldNickname + "!" + client->getUsername() + "@" + client->getIpAddr() + 
+                              " NICK :" + nickname + "\n";
+    
+    std::vector<Channel*> channels = _server->getChannelsForClient(client->getSocketFd());
+    for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        (*it)->sendServerMessage(nickChangeMsg);
+    }
+    
+    Logger::info("Client " + client->getIpAddr() + " changed nickname from " + oldNickname + " to " + nickname);
 }
 
 bool Nick::hasPermission(Client* client) {
