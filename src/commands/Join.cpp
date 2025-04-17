@@ -55,7 +55,7 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
     Channel::JoinError result = channel->addClientToChannel(client, password);
     if (result == Channel::JOIN_SUCCESS) {
         // Invia messaggio di join a tutti i membri del canale
-        std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN " + channelName;
+		std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN :" + channelName;
         channel->sendServerMessage(joinMsg);
         
         // Invia il topic se esiste
