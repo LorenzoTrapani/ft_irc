@@ -32,7 +32,7 @@ void Privmsg::execute(Client* sender, const std::vector<std::string>& params)
     std::string prefix = ":" + sender->getNickname() + "!" + 
                         sender->getUsername() + "@" + 
                         sender->getIpAddr();
-    std::string fullMsg = prefix + " PRIVMSG " + target + " :" + message;
+    std::string fullMsg = prefix + " PRIVMSG " + target + " :" + message + "\n";
 
 
     // Se il target inizia con #, è un messaggio al canale

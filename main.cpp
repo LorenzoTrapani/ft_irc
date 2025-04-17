@@ -34,6 +34,3 @@ int	main(int argc, char **argv)
     
     return 0;
 }
-
-//TODO: rework server.cpp 
-//TODO: sistemare messaggi inviati da server a client

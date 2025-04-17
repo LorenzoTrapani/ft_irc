@@ -57,14 +57,14 @@ class Server
 		void							removeChannel(const std::string& channelName);
 		void							disconnectClientFromChannels(int clientFd);
 		void							addChannel(const std::string& channelName, Channel* channel);
-		Channel*						getChannel(const std::string& channelName);
-
         // Getters
         uint16_t						getPort() const;
         const std::string&				getPassword() const;
         const std::map<int, Client*>& 	getClients() const;
 		Client*							getClient(int clientFd) const;
 		Client*							getClientByNick(const std::string& nickname) const;
+		Channel*						getChannel(const std::string& channelName);
+		std::vector<Channel*>			getChannelsForClient(int clientFd);
 		
         // Exceptions
         class ServerException : public std::runtime_error {

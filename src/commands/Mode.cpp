@@ -158,7 +158,7 @@ void Mode::handleOperatorMode(Client* client, Channel* channel, const std::strin
 	}
 	
 	std::string modeMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
-                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "o " + nick;
+                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "o " + nick + "\n";
     channel->sendServerMessage(modeMsg);
 	Logger::debug("Operator mode set");
 }
@@ -181,7 +181,7 @@ void Mode::handleKeyMode(Client* client, Channel* channel, const std::string& ke
 	
 	std::string modeMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
                          " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "k" + 
-                         (adding ? " " + key : "");
+                         (adding ? " " + key : "") + "\n";
     channel->sendServerMessage(modeMsg);
 	Logger::debug("Key mode set");
 }
@@ -203,7 +203,7 @@ void Mode::handleInviteOnlyMode(Client* client, Channel* channel, bool adding)
 	}
 	
 	std::string modeMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
-                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "i";
+                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "i" + "\n";
     channel->sendServerMessage(modeMsg);
 	Logger::debug("Invite only mode set");
 }
@@ -225,7 +225,7 @@ void Mode::handleTopicMode(Client* client, Channel* channel, bool adding)
 	}
 	
 	std::string modeMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
-                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "t";
+                         " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "t" + "\n";
     channel->sendServerMessage(modeMsg);
 	Logger::debug("Topic mode set");
 }
@@ -248,7 +248,7 @@ void Mode::handleChannelLimitMode(Client* client, Channel* channel, int limit, b
 	
 	std::string modeMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
                          " MODE " + channel->getName() + " " + (adding ? "+" : "-") + "l" + 
-                         (adding ? " " + intToStr(limit) : "");
+                         (adding ? " " + intToStr(limit) : "") + "\n";
     channel->sendServerMessage(modeMsg);
 	Logger::debug("Channel limit mode set");
 }

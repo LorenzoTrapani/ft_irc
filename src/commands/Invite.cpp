@@ -53,7 +53,7 @@ void Invite::execute(Client* client, const std::vector<std::string>& params)
 
     // Invia notifica all'invitato
     std::string inviteMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + 
-                          " INVITE " + targetNick + " " + channelName;
+                          " INVITE " + targetNick + " :" + channelName + "\n";
     _server->sendMessageToClient(targetClient->getSocketFd(), inviteMsg);
 }
 
