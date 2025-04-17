@@ -252,12 +252,17 @@ void Channel::invite(int clientTargetFd, int clientOperatorFd)
         Logger::warning("Non-operator tried to invite client to channel " + _name);
         return;
     }
+
     Client* targetClient = _server->getClient(clientTargetFd);
     if (!targetClient) {
         Logger::warning("Client " + intToStr(clientTargetFd) + " not found in channel " + _name);
         return;
     }
-    _invited.insert(clientTargetFd);
+
+	if (!isInvited(clientTargetFd)) {
+		_invited.insert(clientTargetFd);
+	}
+
     Logger::info("Client " + targetClient->getNickname() + " invited to channel " + _name);
 }
 

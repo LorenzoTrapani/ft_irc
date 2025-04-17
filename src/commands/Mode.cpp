@@ -78,7 +78,7 @@ void Mode::processModes(Client* client, Channel* channel, const std::vector<std:
             addMode = true;
             continue;
         }
-        else if (type == '-') {
+        if (type == '-') {
             addMode = false;
             continue;
     	}
@@ -139,8 +139,16 @@ void Mode::handleOperatorMode(Client* client, Channel* channel, const std::strin
 	}
 
 	if(adding) {
+		if (channel->isOperator(target->getSocketFd())) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, nick + " " + channel->getName() + " :They are already a channel operator");
+			return;
+		}
 		channel->promoteToOperator(target->getSocketFd(), client->getSocketFd());
 	} else {
+		if (!channel->isOperator(target->getSocketFd())) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, nick + " " + channel->getName() + " :They are not a channel operator");
+			return;
+		}
 		channel->demoteOperator(target->getSocketFd(), client->getSocketFd());
 	}
 	
@@ -153,8 +161,16 @@ void Mode::handleOperatorMode(Client* client, Channel* channel, const std::strin
 void Mode::handleKeyMode(Client* client, Channel* channel, const std::string& key, bool adding)
 {
 	if(adding) {
+		if (key.empty()) {
+			ResponseMessage::sendError(client, ERR_INVALIDMODEPARAM, channel->getName() + " :Cannot set empty password");
+			return;
+		}
 		channel->setPassword(key, client->getSocketFd());
 	} else {
+		if (!channel->hasPassword()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is not protected by a password");
+			return;
+		}
 		channel->setPassword("", client->getSocketFd());
 	}	
 	
@@ -168,8 +184,16 @@ void Mode::handleKeyMode(Client* client, Channel* channel, const std::string& ke
 void Mode::handleInviteOnlyMode(Client* client, Channel* channel, bool adding)
 {
 	if(adding) {
+		if (channel->isInviteOnly()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is already invite-only");
+			return;
+		}
 		channel->setInviteOnly(true, client->getSocketFd());
 	} else {
+		if (!channel->isInviteOnly()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is not invite-only");
+			return;
+		}
 		channel->setInviteOnly(false, client->getSocketFd());
 	}
 	
@@ -182,8 +206,16 @@ void Mode::handleInviteOnlyMode(Client* client, Channel* channel, bool adding)
 void Mode::handleTopicMode(Client* client, Channel* channel, bool adding)
 {
 	if(adding) {
+		if (channel->isTopicRestricted()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is already topic restricted");
+			return;
+		}n
 		channel->setTopicRestricted(true, client->getSocketFd());
 	} else {
+		if (!channel->isTopicRestricted()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is not topic restricted");
+			return;
+		}
 		channel->setTopicRestricted(false, client->getSocketFd());
 	}
 	
@@ -196,8 +228,16 @@ void Mode::handleTopicMode(Client* client, Channel* channel, bool adding)
 void Mode::handleChannelLimitMode(Client* client, Channel* channel, int limit, bool adding)
 {
 	if(adding) {
+		if (limit <= 0) {
+			ResponseMessage::sendError(client, ERR_INVALIDMODEPARAM, channel->getName() + " :Cannot set empty limit");
+			return;
+		}
 		channel->setUserLimit(limit, client->getSocketFd());
 	} else {
+		if (!channel->isLimited()) {
+			ResponseMessage::sendError(client, ERR_CHANOPRIVSNEEDED, channel->getName() + " :Channel is not limited");
+			return;
+		}
 		channel->setUserLimit(0, client->getSocketFd());
 	}
 	

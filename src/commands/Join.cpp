@@ -47,6 +47,11 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
         }
     }
 
+	if (channel->isInChannel(client->getSocketFd())) {
+		ResponseMessage::sendError(client, ERR_USERONCHANNEL, client->getNickname() + " " + channelName + " :is already on channel");
+		return;
+	}
+
     Channel::JoinError result = channel->addClientToChannel(client, password);
     if (result == Channel::JOIN_SUCCESS) {
         // Invia messaggio di join a tutti i membri del canale
