@@ -52,10 +52,6 @@ void Kick::execute(Client* client, const std::vector<std::string>& params) {
 	channel->removeClientFromChannel(target->getSocketFd(), client->getSocketFd(), true);	
 }
 
-std::string Kick::getCmdName() const {
-    return "KICK";
-}
-
 bool Kick::hasPermission(Client* client) {
 	if (!client->isAuthenticated()) {
         ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
@@ -63,3 +59,5 @@ bool Kick::hasPermission(Client* client) {
     }
     return true;
 }
+
+std::string Kick::getCmdName() const {return "KICK";}

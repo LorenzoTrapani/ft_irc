@@ -67,10 +67,6 @@ void Privmsg::execute(Client* sender, const std::vector<std::string>& params)
     }
 }
 
-std::string Privmsg::getCmdName() const {
-    return "PRIVMSG";
-}
-
 bool Privmsg::hasPermission(Client* client) {
     if (!client->isAuthenticated()) {
         ResponseMessage::sendError(client, ERR_NOTREGISTERED, ":You have not registered");
@@ -78,3 +74,5 @@ bool Privmsg::hasPermission(Client* client) {
     }
     return true;
 }
+
+std::string Privmsg::getCmdName() const {return "PRIVMSG";}

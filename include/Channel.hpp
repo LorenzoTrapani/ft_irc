@@ -3,6 +3,8 @@
 
 #include <string>
 #include <set>
+#include <stdexcept>
+#include <vector>
 #include "Client.hpp"
 #include "Logger.hpp"
 #include "Utils.hpp"
@@ -18,6 +20,7 @@ private:
     std::string     		_name;                        // Nome del canale (deve iniziare con #)
     std::string     		_topic;                       // Topic/descrizione del canale
     std::string     		_password;                    // Password del canale (se protetto)
+    unsigned int    		_userLimit;                   // Limite massimo di utenti (0 = nessun limite)
     
     std::set<int>   		_members;                     // Set degli FD dei client nel canale
     std::set<int>   		_operators;                   // Set degli operatori (admin) del canale
@@ -25,7 +28,6 @@ private:
 
     bool            		_inviteOnly;                  // Modalità: solo su invito
     bool            		_topicRestricted;             // Modalità: topic modificabile solo dagli operatori
-    unsigned int    		_userLimit;                   // Limite massimo di utenti (0 = nessun limite)
 
 public:
     Channel(const std::string& name, Client* creator, Server* server);
@@ -45,6 +47,7 @@ public:
     unsigned int            getUserLimit() const;
     std::string             getModes() const;
 	std::string             getPassword() const;
+    std::vector<std::string> getParams() const;
     
     // Setters
     void                    setTopic(const std::string& topic, int clientFd);
@@ -61,8 +64,10 @@ public:
     bool                    isInChannel(int clientFd) const;
     bool                    isInvited(int clientFd) const;
     bool                    isValidChannelName(const std::string& name);
+	bool                    isLimited() const;
+
     // Gestione utenti
-    JoinError         addClientToChannel(Client* client, const std::string &password);
+    JoinError         		addClientToChannel(Client* client, const std::string &password);
     bool                    removeClientFromChannel(int clientTargetFd, int clientOperatorFd, bool isKick);
     void                    promoteToOperator(int clientTargetFd, int clientOperatorFd);
     void                    demoteOperator(int clientTargetFd, int clientOperatorFd);

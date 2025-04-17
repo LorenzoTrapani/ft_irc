@@ -34,10 +34,6 @@ bool Nick::hasPermission(Client* client) {
     return true;
 }
 
-std::string Nick::getCmdName() const {
-    return "NICK";
-}
-
 bool Nick::isNicknameInUse(const std::string& nickname) {
     const std::map<int, Client*>& clients = _server->getClients();
     
@@ -49,3 +45,5 @@ bool Nick::isNicknameInUse(const std::string& nickname) {
     
     return false;
 }
+
+std::string Nick::getCmdName() const {return "NICK";}

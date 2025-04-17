@@ -74,10 +74,6 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
     }
 }
 
-std::string Join::getCmdName() const {
-    return "JOIN";
-}
-
 bool Join::hasPermission(Client* client)
 {
 	if (!client->isAuthenticated()) {
@@ -86,3 +82,5 @@ bool Join::hasPermission(Client* client)
 	}
     return true;
 }
+
+std::string Join::getCmdName() const {return "JOIN";}

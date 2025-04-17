@@ -23,7 +23,7 @@ SRC = main.cpp \
 		./src/commands/Invite.cpp \
 		./src/commands/Topic.cpp \
 		./src/commands/Kick.cpp \
-		#./src/commands/Mode.cpp \
+		./src/commands/Mode.cpp \
 		
 		
 

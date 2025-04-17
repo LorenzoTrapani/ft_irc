@@ -37,6 +37,4 @@ bool Ping::hasPermission(Client* client) {
     return true;
 }
 
-std::string Ping::getCmdName() const {
-    return "PING";
-}
+std::string Ping::getCmdName() const {return "PING";}

@@ -6,9 +6,9 @@ Channel::Channel(const std::string& name, Client* creator, Server* server)
       _name(name), 
       _topic(""), 
       _password(""), 
+      _userLimit(0),
       _inviteOnly(false), 
-      _topicRestricted(true), 
-      _userLimit(0)
+      _topicRestricted(false)
 {
 
     if (name.empty() || !isValidChannelName(name)) {
@@ -53,10 +53,39 @@ const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
 std::string Channel::getPassword() const { return _password; }
+std::string Channel::getModes() const {
+	std::string modes;
+	if (hasPassword()) modes += "k";
+	if (isInviteOnly()) modes += "i";
+	if (isTopicRestricted()) modes += "t";
+	if (isLimited()) modes += "l";
+	return modes;
+}
+
+std::vector<std::string> Channel::getParams() const {
+    std::vector<std::string> paramsVector;
+    
+    // Aggiungere i parametri nell'ordine in cui appaiono nei flags
+    std::string modes = getModes();
+    
+    for (size_t i = 0; i < modes.length(); i++) {
+        char mode = modes[i];
+        if (mode == 'k' && hasPassword()) {
+            paramsVector.push_back(_password);
+        } 
+        else if (mode == 'l' && isLimited()) {
+            paramsVector.push_back(intToStr(_userLimit));
+        }
+        // TODO: Aggiungere altri parametri per futuri modi se necessario
+    }
+    
+    return paramsVector;
+}
 
 // Controlli
 bool Channel::isInviteOnly() const { return _inviteOnly; }
 bool Channel::isTopicRestricted() const { return _topicRestricted; }
+bool Channel::isLimited() const { return _userLimit > 0; }
 bool Channel::hasPassword() const { return !_password.empty(); }
 bool Channel::isOperator(int clientFd) const { return _operators.find(clientFd) != _operators.end(); }
 bool Channel::isInChannel(int clientFd) const { return _members.find(clientFd) != _members.end(); }
@@ -193,10 +222,13 @@ void Channel::promoteToOperator(int clientTargetFd, int clientOperatorFd)
         Logger::warning("Non-operator tried to promote client to operator in channel " + _name);
         return;
     }
-    _operators.insert(clientTargetFd);
     Client* targetClient = _server->getClient(clientTargetFd);
-    if (targetClient)
-        Logger::info("Client " + targetClient->getNickname() + " promoted to operator in channel " + _name);
+    if (!targetClient) {
+        Logger::warning("Client " + intToStr(clientTargetFd) + " not found in channel " + _name);
+        return;
+    }
+    _operators.insert(clientTargetFd);
+    Logger::info("Client " + targetClient->getNickname() + " promoted to operator in channel " + _name);
 }
 
 void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd) 
@@ -205,10 +237,13 @@ void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd)
         Logger::warning("Non-operator tried to demote client from operator in channel " + _name);
         return;
     }
-    _operators.erase(clientTargetFd);
     Client* targetClient = _server->getClient(clientTargetFd);
-    if (targetClient)
-        Logger::info("Client " + targetClient->getNickname() + " demoted from operator in channel " + _name);
+    if (!targetClient) {
+        Logger::warning("Client " + intToStr(clientTargetFd) + " not found in channel " + _name);
+        return;
+    }
+    _operators.erase(clientTargetFd);
+    Logger::info("Client " + targetClient->getNickname() + " demoted from operator in channel " + _name);
 }
 
 void Channel::invite(int clientTargetFd, int clientOperatorFd)
@@ -217,10 +252,13 @@ void Channel::invite(int clientTargetFd, int clientOperatorFd)
         Logger::warning("Non-operator tried to invite client to channel " + _name);
         return;
     }
-    _invited.insert(clientTargetFd);
     Client* targetClient = _server->getClient(clientTargetFd);
-    if (targetClient)
-        Logger::info("Client " + targetClient->getNickname() + " invited to channel " + _name);
+    if (!targetClient) {
+        Logger::warning("Client " + intToStr(clientTargetFd) + " not found in channel " + _name);
+        return;
+    }
+    _invited.insert(clientTargetFd);
+    Logger::info("Client " + targetClient->getNickname() + " invited to channel " + _name);
 }
 
 void Channel::sendMessage(const std::string& message, Client* sender)
@@ -238,13 +276,4 @@ void Channel::sendServerMessage(const std::string& message)
     // Invio del messaggio da parte del SERVER a tutti i client nel canale
     for (std::set<int>::iterator it = _members.begin(); it != _members.end(); ++it)
         _server->sendMessageToClient(*it, message);
-}
-
-std::string Channel::getModes() const
-{
-    std::string modes;
-    if (_inviteOnly) modes += "i";
-    if (_topicRestricted) modes += "t";
-    if (_userLimit > 0) modes += "l";
-    return modes;
 }
