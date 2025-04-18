@@ -260,7 +260,6 @@ void Server::handleConnections()
 		while (it != _clients.end())
 		{
 			int clientFd = it->first;
-			Client* client = it->second;
 			++it;
 			
 			if (FD_ISSET(clientFd, &readFds))
