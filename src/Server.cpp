@@ -185,8 +185,6 @@ void Server::listenForConnections()
 		throw ServerException("Failed to listen for connections");
 }
 
-//TODO: refactorare handleConnections
-
 void Server::handleConnections()
 {
 	fd_set readFds, writeFds;
@@ -265,27 +263,15 @@ void Server::handleConnections()
 			Client* client = it->second;
 			++it;
 			
-			// Se c'è attività in lettura su questo socket client
 			if (FD_ISSET(clientFd, &readFds))
 			{
-				if (!handleClientData(clientFd))
+				if (!handleClientData(clientFd)) // Se handleClientData ritorna false, il client si è disconnesso
 				{
-					// Se handleClientData ritorna false, il client si è disconnesso
 					removeClient(clientFd);
 					continue;
 				}
 			}
-
-			//da capire se questo è necessario
-			// Se c'è possibilità di scrittura su questo socket client
-			if (client && FD_ISSET(clientFd, &writeFds))
-			{
-				// Qui gestiremo l'invio di dati in attesa per questo client
-				// Per ora non è implementato
-			}
 		}
-
-        // checkPingClients();
 	}
 }
 
