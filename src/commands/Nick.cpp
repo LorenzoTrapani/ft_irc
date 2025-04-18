@@ -26,9 +26,7 @@ void Nick::execute(Client* client, const std::vector<std::string>& params) {
         
     if (oldNickname.empty()) {
         Logger::info("Client " + client->getIpAddr() + " set nickname to " + nickname);
-        
-        // TODO: vedere se è necessario inviare un welcome
-		return;
+        return;
     }
 
     std::string nickChangeMsg = ":" + oldNickname + "!" + client->getUsername() + "@" + client->getIpAddr() + 

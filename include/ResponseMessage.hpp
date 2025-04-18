@@ -47,6 +47,7 @@ enum ResponseCode {
 	ERR_INVALIDMODEPARAM = 474,     // <mode> <channel> :Invalid mode parameter
 	ERR_USERONCHANNEL = 443,        // <nick> <channel> :is already on channel
 	ERR_NOMODESET = 475,            // <channel> :No modes are set on this channel
+	ERR_NOPRIVILEGES = 481,         // :Permission Denied- You're not an IRC operator
 };
 
 class ResponseMessage {
