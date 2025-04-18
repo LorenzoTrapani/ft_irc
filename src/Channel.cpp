@@ -243,6 +243,15 @@ void Channel::demoteOperator(int clientTargetFd, int clientOperatorFd)
         return;
     }
     _operators.erase(clientTargetFd);
+	if (_operators.empty()) {
+		int newOperatorFd = *_members.begin();
+		Client* newOperator = _server->getClient(newOperatorFd);
+		if (newOperator) {
+            _operators.insert(newOperator->getSocketFd());
+			Logger::info("Channel " + _name + " has new operator: " + newOperator->getNickname());
+        }
+
+	}
     Logger::info("Client " + targetClient->getNickname() + " demoted from operator in channel " + _name);
 }
 
