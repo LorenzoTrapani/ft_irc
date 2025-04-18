@@ -69,7 +69,7 @@ void ResponseMessage::sendNumeric(Client* client, ResponseCode code, const std::
     send(client->getSocketFd(), formattedMessage.c_str(), formattedMessage.length(), 0);
     
     if (code != RPL_WELCOME && code != RPL_YOURHOST && code != RPL_CREATED) {
-        Logger::debug(">> " + formattedMessage);
+        Logger::warning(">> " + formattedMessage);
     }
 }
 
