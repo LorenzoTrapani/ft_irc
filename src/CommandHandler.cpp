@@ -1,5 +1,6 @@
 #include "CommandHandler.hpp"
 #include "Logger.hpp"
+#include "ResponseMessage.hpp"
 #include <sstream>
 #include <algorithm>
 
@@ -34,14 +35,20 @@ bool CommandHandler::executeCommand(Client* client, const std::string& rawInput)
     } else {
         iss >> commandName;
     }
-    
-    std::transform(commandName.begin(), commandName.end(), commandName.begin(), ::toupper);
-    
+
+	for (size_t i = 0; i < commandName.length(); ++i) {
+		if (std::isalpha(commandName[i]) && !std::isupper(commandName[i])) {
+			Logger::error("Command not in uppercase: " + commandName);
+			ResponseMessage::sendError(client, ERR_UNKNOWNCOMMAND, commandName + " :Unknown command");
+			return false;
+		}
+	}
+
     // cerco il comando nella mappa
     std::map<std::string, ICommand*>::iterator cmdIt = _commands.find(commandName);
     if (cmdIt == _commands.end()) {
         Logger::error("Command not found: " + commandName);
-        // TODO: Invia errore 421 (comando sconosciuto) al client
+        ResponseMessage::sendError(client, ERR_UNKNOWNCOMMAND, commandName + " :Unknown command");
         return false;
     }
     
@@ -71,7 +78,7 @@ bool CommandHandler::executeCommand(Client* client, const std::string& rawInput)
     // Verifico i permessi
     if (!cmdIt->second->hasPermission(client)) {
         Logger::warning("Client does not have permission to execute command: " + commandName);
-        // TODO: Invia errore appropriato al client
+        ResponseMessage::sendError(client, ERR_NOPRIVILEGES, commandName + " :Permission Denied- You're not an IRC operator");
         return false;
     }
     

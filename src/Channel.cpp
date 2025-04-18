@@ -170,11 +170,12 @@ void Channel::setUserLimit(unsigned int limit, int clientFd)
 
 Channel::JoinError Channel::addClientToChannel(Client* client, const std::string &password)
 {
+
     if (isInviteOnly() && !isInvited(client->getSocketFd())) {
         Logger::warning("Client " + client->getIpAddr() + " tried to join invite-only channel " + _name + " but is not invited");
         return JOIN_ERR_INVITE_ONLY;
     }
-    if (hasPassword() && password != _password) {
+    if ((hasPassword() && password != _password) && !isInvited(client->getSocketFd())) {
         Logger::warning("Client " + client->getIpAddr() + " tried to join password-protected channel " + _name + " with incorrect password");
         return JOIN_ERR_BAD_PASSWORD;
     }

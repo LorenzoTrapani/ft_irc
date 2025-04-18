@@ -39,7 +39,7 @@ void Join::execute(Client* client, const std::vector<std::string>& params)
             
             // Invia messaggio di join al client
             std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIpAddr() + " JOIN " + channelName + "\n";
-            // channel->sendServerMessage(joinMsg);
+            channel->sendServerMessage(joinMsg);
             return;
         } catch (const Channel::ChannelError& e) {
             ResponseMessage::sendError(client, ERR_NOSUCHCHANNEL, channelName + " :" + e.what());
