@@ -48,6 +48,7 @@ public:
     std::string             getModes() const;
 	std::string             getPassword() const;
     std::vector<std::string> getParams() const;
+    std::set<int>            getClients() const;
     
     // Setters
     void                    setTopic(const std::string& topic, int clientFd);

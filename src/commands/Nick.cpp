@@ -33,8 +33,17 @@ void Nick::execute(Client* client, const std::vector<std::string>& params) {
                               " NICK :" + nickname + "\n";
     
     std::vector<Channel*> channels = _server->getChannelsForClient(client->getSocketFd());
+    
+    std::set<int> clientsToNotify;
+        
     for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        (*it)->sendServerMessage(nickChangeMsg);
+        std::set<int> clients = (*it)->getClients();
+        clientsToNotify.insert(clients.begin(), clients.end());
+    }
+    
+    // Invia il messaggio una sola volta a ciascun client
+    for (std::set<int>::iterator it = clientsToNotify.begin(); it != clientsToNotify.end(); ++it) {
+        _server->sendMessageToClient(*it, nickChangeMsg);
     }
     
     Logger::info("Client " + client->getIpAddr() + " changed nickname from " + oldNickname + " to " + nickname);

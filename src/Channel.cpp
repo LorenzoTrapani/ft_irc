@@ -53,6 +53,7 @@ const std::string& Channel::getTopic() const { return _topic; }
 unsigned int Channel::getUserCount() const { return _members.size(); }
 unsigned int Channel::getUserLimit() const { return _userLimit; }
 std::string Channel::getPassword() const { return _password; }
+std::set<int> Channel::getClients() const { return _members; }
 std::string Channel::getModes() const {
 	std::string modes;
 	if (hasPassword()) modes += "k";
@@ -80,6 +81,7 @@ std::vector<std::string> Channel::getParams() const {
     
     return paramsVector;
 }
+
 
 // Controlli
 bool Channel::isInviteOnly() const { return _inviteOnly; }
