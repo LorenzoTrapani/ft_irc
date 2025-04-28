@@ -52,11 +52,6 @@ void Privmsg::execute(Client* sender, const std::vector<std::string>& params)
         channel->sendMessage(fullMsg, sender);
     }
     else {
-		// Controllo se il target è se stesso
-		if (target == sender->getNickname()) {
-            ResponseMessage::sendError(sender, ERR_CANNOTSENDTOCHAN, "Cannot send to yourself");
-            return;
-        }
         // Invia il messaggio privato all'utente
         Client* privateUser = _server->getClientByNick(target);
         if (!privateUser) {
