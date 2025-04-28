@@ -14,12 +14,16 @@
 
 Server::Server(const std::string &portRaw, const std::string &password)
 {
-    uint16_t port = static_cast<uint16_t>(std::atoi(portRaw.c_str()));
-	if (port == 0)
+    char* endptr;
+	long port = strtol(portRaw.c_str(), &endptr, 10);
+
+	if (*endptr != '\0' || port <= 0 || port > 65535) {
 		throw InvalidArgument("Invalid port number. Must be between 1 and 65535");
+	}
 	_port = port;
-	if (password.empty())
+	if (password.empty()) {
 		throw InvalidArgument("Password cannot be empty");
+	}
 	_password = password;
     _socket = -1;
     _commandHandler = NULL;
