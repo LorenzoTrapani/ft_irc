@@ -8,8 +8,8 @@ Kick::Kick(Server* server) : _server(server) {}
 Kick::~Kick() {}
 
 void Kick::execute(Client* client, const std::vector<std::string>& params) {
-	if (params.size() < 2) {
-		ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+	if (params.empty() || (params.size() != 2 && params.size() != 3)) {
+		ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "KICK :Wrong number of parameters");
 		return;
 	}
 

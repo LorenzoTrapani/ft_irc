@@ -10,7 +10,7 @@ Mode::~Mode() {}
 void Mode::execute(Client* client, const std::vector<std::string>& params)
 {
     if (params.empty()) {
-        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "MODE :Not enough parameters");
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "MODE :Wrong number of parameters");
         return;
     }
 

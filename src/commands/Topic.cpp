@@ -9,8 +9,8 @@ Topic::~Topic() {}
 
 void Topic::execute(Client* client, const std::vector<std::string>& params)
 {
-    if (params.empty()) {
-        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "TOPIC :Not enough parameters");
+    if (params.empty() || params.size() > 2) {
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "TOPIC :Wrong number of parameters");
         return;
     }
 

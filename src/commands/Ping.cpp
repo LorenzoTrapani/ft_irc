@@ -12,6 +12,10 @@ void Ping::execute(Client* client, const std::vector<std::string>& params) {
         ResponseMessage::sendError(client, ERR_NOORIGIN, ":No origin specified");
         return;
     }
+    if (params.size() != 1) {
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "PING :Wrong number of parameters");
+        return;
+    }
     
     std::string token = params[0];
     

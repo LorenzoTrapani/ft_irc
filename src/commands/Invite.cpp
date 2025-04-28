@@ -11,8 +11,8 @@ Invite::~Invite() {}
 
 void Invite::execute(Client* client, const std::vector<std::string>& params)
 {
-    if (params.size() < 2) {
-        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "INVITE :Not enough parameters");
+    if (params.empty() || params.size() != 2) {
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "INVITE :Wrong number of parameters");
         return;
     }
 

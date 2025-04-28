@@ -9,8 +9,8 @@ Privmsg::~Privmsg() {}
 
 void Privmsg::execute(Client* sender, const std::vector<std::string>& params)
 {
-    if (params.size() < 2) {
-        ResponseMessage::sendError(sender, ERR_NEEDMOREPARAMS, "PRIVMSG :Not enough parameters");
+    if (params.empty() || params.size() != 2) {
+        ResponseMessage::sendError(sender, ERR_NEEDMOREPARAMS, "PRIVMSG :Wrong number of parameters");
         return;
     }
 

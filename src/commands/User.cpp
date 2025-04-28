@@ -9,8 +9,8 @@ User::~User() {}
 
 void User::execute(Client* client, const std::vector<std::string>& params) {
     // Verifica che ci siano abbastanza parametri (USER username mode unused :realname)
-    if (params.size() < 4) {
-        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "USER :Not enough parameters");
+    if (params.empty() || params.size() != 4) {
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "USER :Wrong number of parameters");
         return;
     }
     

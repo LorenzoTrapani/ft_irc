@@ -8,8 +8,8 @@ Pass::Pass(Server* server) : _server(server) {}
 Pass::~Pass() {}
 
 void Pass::execute(Client* client, const std::vector<std::string>& params) {
-    if (params.empty()) {
-        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "PASS :Not enough parameters");
+    if (params.empty() || params.size() != 1) {
+        ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "PASS :Wrong number of parameters");
         return;
     }
     

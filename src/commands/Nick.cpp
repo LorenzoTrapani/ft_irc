@@ -13,6 +13,10 @@ void Nick::execute(Client* client, const std::vector<std::string>& params) {
         ResponseMessage::sendError(client, ERR_NONICKNAMEGIVEN, ":No nickname given");
         return;
     }
+    if (params.size() != 1) {
+        ResponseMessage::sendError(client, ERR_NONICKNAMEGIVEN, "NICK :Wrong number of parameters");
+        return;
+    }
     
     std::string nickname = params[0];
     
