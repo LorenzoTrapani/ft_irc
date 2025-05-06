@@ -9,7 +9,7 @@ Join::~Join() {}
 
 void Join::execute(Client* client, const std::vector<std::string>& params)
 {
-    if (params.empty() || params.size() != 2)
+    if (params.empty() || (params.size() != 2 && params.size() != 1))
     {
         ResponseMessage::sendError(client, ERR_NEEDMOREPARAMS, "JOIN :Wrong number of parameters");
         return;
